@@ -28,11 +28,14 @@
 ### الصفحة الرئيسية (Landing Page)
 <img src="public/screenshots/screenshot-landing.png" alt="الصفحة الرئيسية" width="800" />
 
-### نموذج الانضمام (Join Game Form)
-<img src="public/screenshots/screenshot-join-form.png" alt="نموذج الانضمام للعبة" width="800" />
+### لوحة اللعبة - عرض سطح المكتب (Game Board - Desktop)
+<img src="public/screenshots/screenshot-game-desktop.png" alt="لوحة اللعبة على سطح المكتب" width="800" />
+
+### لوحة اللعبة - لوحي (Game Board - Tablet)
+<img src="public/screenshots/screenshot-game-tablet.png" alt="لوحة اللعبة على اللوحي" width="600" />
 
 ### عرض الجوال (Mobile View)
-<img src="public/screenshots/screenshot-landing-mobile.png" alt="عرض الجوال" width="375" />
+<img src="public/screenshots/screenshot-landing-mobile.png" alt="عرض الجوال" width="390" />
 
 </div>
 
