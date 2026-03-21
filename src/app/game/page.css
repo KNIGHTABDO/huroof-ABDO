@@ -1,0 +1,98 @@
+.game-page {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.game-layout {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row-reverse; /* sidebar on right (RTL) */
+}
+
+/* Board area: takes all remaining space */
+.board-area {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.board-wrapper {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Info bar overlay on board */
+.board-info-bar {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  gap: 8px;
+}
+
+.room-code-pill,
+.player-count-pill {
+  background: rgba(107, 63, 160, 0.85);
+  backdrop-filter: blur(8px);
+  color: #FFF;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Loading */
+.game-loading {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  background: url('/assets/background.png') no-repeat center center;
+  background-size: cover;
+  color: #FFF;
+  font-family: 'Cairo', sans-serif;
+}
+
+@keyframes logoPulse {
+  0% { transform: translateY(0) scale(1); filter: drop-shadow(0 0 10px rgba(255,215,0,0.2)); }
+  50% { transform: translateY(-10px) scale(1.03); filter: drop-shadow(0 0 20px rgba(255,215,0,0.6)); }
+  100% { transform: translateY(0) scale(1); filter: drop-shadow(0 0 10px rgba(255,215,0,0.2)); }
+}
+
+.error-msg {
+  color: #FF6B6B;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.back-btn {
+  padding: 10px 28px;
+  background: #6B3FA0;
+  border: none;
+  border-radius: 14px;
+  color: #FFF;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Cairo', sans-serif;
+}
+
+.back-btn:hover {
+  background: #5A3590;
+}

@@ -1,0 +1,19 @@
+/* Diagonal background: Orange on LEFT+RIGHT sides, Green on TOP+BOTTOM
+   Creates the X-split pattern from the TV show.
+   The board sits in the center, so both colors should peek through. */
+.diagonal-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  /* Orange triangles at top-left and bottom-right,
+     Green fills the rest (top-right and bottom-left) */
+  background:
+    linear-gradient(to bottom right, #E8751A 50%, transparent 50%) top left / 50% 50% no-repeat,
+    linear-gradient(to bottom left, #E8751A 50%, transparent 50%) top right / 50% 50% no-repeat,
+    linear-gradient(to top right, #E8751A 50%, transparent 50%) bottom left / 50% 50% no-repeat,
+    linear-gradient(to top left, #E8751A 50%, transparent 50%) bottom right / 50% 50% no-repeat;
+  background-color: #1EA83A;
+}
