@@ -3,22 +3,41 @@
   
   # حروف مع عبدو (Letters with Abdo)
   
-  **لعبة الحروف العربية - تحدي الفرق في الوقت الحقيقي**
-  *(Arabic Letters Game - Real-time Team Challenge)*
+  **لعبة الحروف العربية التفاعلية - تحدي الفرق في الوقت الحقيقي**  
+  *(Interactive Arabic Letters Game - Real-time Team Challenge)*
 
   [![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg)](https://opensource.org/licenses/MIT)
-  [![Next.js](https://img.shields.io/badge/Next.js-15-black.svg)](https://nextjs.org/)
+  [![Next.js](https://img.shields.io/badge/Next.js-16-black.svg)](https://nextjs.org/)
   [![PeerJS](https://img.shields.io/badge/PeerJS-WebRTC-blue.svg)](https://peerjs.com/)
+  [![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black.svg?logo=vercel)](https://huroof-abdo.vercel.app/)
 
-  [العب الآن (Play Now)](#) • [المساهمة (Contributing)](#contributing) • [سجل التغييرات (Changelog)](#changelog)
+  [🎮 العب الآن (Play Now)](https://huroof-abdo.vercel.app/) • [🤝 المساهمة (Contributing)](#-المساهمة-contributing) • [📋 سجل التغييرات (Changelog)](#-الروابط-المهمة-important-links)
 </div>
 
 ---
 
 ## 🌟 اللمحة العامة (Overview)
-**حروف مع عبدو** هو تطبيق ويب وتجربة لعب تفاعلية تعتمد على تحديات الحروف العربية. اللعبة مصممة لتعزيز المنافسة بين فريقين (البرتقالي والأخضر) من خلال السيطرة على لوحة شكل سداسي (Hex Board) عبر الإجابة الصحيحة واختيار الحروف المناسبة.
+**حروف مع عبدو** هو تطبيق ويب تفاعلي مصمم للتسلية مع العائلة والأصدقاء، يعتمد على تحديات الحروف العربية. اللعبة تجمع فريقين (البرتقالي والأخضر) في منافسة ممتعة للسيطرة على لوحة شكل سداسي (Hex Board) عبر الإجابة الصحيحة على الأسئلة واختيار الحروف المناسبة.
 
-يقدم التطبيق واجهة مستخدم احترافية وسلسة بتصميم داكن وزجاجي يضفي طابعاً فريداً ومميزاً على تجربة المستخدم.
+يقدم التطبيق واجهة مستخدم احترافية وسلسة بتصميم داكن وزجاجي يضفي طابعاً فريداً ومميزاً على تجربة المستخدم. **مُنشور ومتاح مجاناً على:** [https://huroof-abdo.vercel.app/](https://huroof-abdo.vercel.app/)
+
+## 📸 لقطات الشاشة (Screenshots)
+
+<div align="center">
+
+### الصفحة الرئيسية (Landing Page)
+<img src="public/screenshots/screenshot-landing.png" alt="الصفحة الرئيسية" width="800" />
+
+### لوحة اللعبة - عرض سطح المكتب (Game Board - Desktop)
+<img src="public/screenshots/screenshot-game-desktop.png" alt="لوحة اللعبة على سطح المكتب" width="800" />
+
+### لوحة اللعبة - لوحي (Game Board - Tablet)
+<img src="public/screenshots/screenshot-game-tablet.png" alt="لوحة اللعبة على اللوحي" width="600" />
+
+### عرض الجوال (Mobile View)
+<img src="public/screenshots/screenshot-landing-mobile.png" alt="عرض الجوال" width="390" />
+
+</div>
 
 ## ✨ الميزات (Features)
 - 🎮 **لعب جماعي في الوقت الفعلي:** تنافس بين لاعبين باستخدام تقنية (Peer-to-Peer عبر PeerJS) بدون تأخير.
@@ -26,20 +45,22 @@
 - 🧩 **لوحة سداسية تفاعلية:** لوحة لعب مبتكرة تعتمد على الحروف مع رسوميات سلسة للتفاعل مع كل حركة.
 - 📱 **متجاوب 100%:** تصميم يعمل بسلاسة على كافة الأجهزة المحمولة واللوحية وشاشات الكمبيوتر.
 - ⚙️ **تقنيات حديثة:** مبني باستخدام أحدث إصدارات Next.js و React لسرعة أداء فائقة.
+- 🌐 **نشر مجاني:** متاح للعب مباشرةً على [https://huroof-abdo.vercel.app/](https://huroof-abdo.vercel.app/)
 
 ## 🚀 تقنيات المشروع (Tech Stack)
-- **الإطار الرئيسي:** [Next.js](https://nextjs.org/) (App Router)
+- **الإطار الرئيسي:** [Next.js 16](https://nextjs.org/) (App Router)
 - **المكتبة الأساسية:** [React 19](https://react.dev/)
 - **الشبكة (Network):** [PeerJS](https://peerjs.com/) للاتصال المباشر بين اللاعبين.
 - **التصميم (Styling):** CSS Modules / Plain CSS (Custom glassmorphism design system).
 - **الخطوط (Fonts):** خط `Cairo` لدعم ممتاز وتحسينات رائعة للنصوص العربية.
+- **النشر (Deployment):** [Vercel](https://vercel.com/) على الرابط [https://huroof-abdo.vercel.app/](https://huroof-abdo.vercel.app/)
 
 ## 🛠 التثبيت والتشغيل المحلي (Installation & Setup)
 
 1. **استنساخ المستودع (Clone the repository)**
    ```bash
-   git clone https://github.com/your-username/huroof-game.git
-   cd huroof-game
+   git clone https://github.com/KNIGHTABDO/huroof-ABDO.git
+   cd huroof-ABDO
    ```
 
 2. **تثبيت الحزم (Install dependencies)**
@@ -58,9 +79,10 @@
 نرحب دائماً بالمساهمين! لتطوير أو إصلاح أو تحسين اللعبة، يرجى مراجعة [دليل المساهمة (CONTRIBUTING.md)](CONTRIBUTING.md) للتعرف على الخطوات والقواعد.
 
 ## 📜 الروابط المهمة (Important Links)
-- [سياسة الخصوصية (Privacy Policy)](/privacy)
-- [شروط الخدمة (Terms of Service)](/terms)
-- [سجل التغييرات (Changelog)](/changelog)
+- 🎮 [العب الآن (Play Now)](https://huroof-abdo.vercel.app/)
+- 🔒 [سياسة الخصوصية (Privacy Policy)](https://huroof-abdo.vercel.app/privacy)
+- 📋 [شروط الخدمة (Terms of Service)](https://huroof-abdo.vercel.app/terms)
+- 🔄 [سجل التغييرات (Changelog)](https://huroof-abdo.vercel.app/changelog)
 
 ## 📄 الترخيص (License)
 هذا المشروع مرخص بموجب أداة **MIT License** - يرجى الاطلاع على ملف [LICENSE](LICENSE) لمزيد من التفاصيل.
