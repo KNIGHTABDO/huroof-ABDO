@@ -1,7 +1,7 @@
 .sidebar {
   background: #6B3FA0;
-  width: 320px;
-  min-width: 280px;
+  width: clamp(250px, 28vw, 320px);
+  min-width: 240px;
   max-width: 350px;
   height: 100vh;
   display: flex;
@@ -25,19 +25,24 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex: 1;
+  min-width: 0;
 }
 
 .options-btn {
   background: rgba(255,255,255,0.9);
   border: none;
   color: #333;
-  padding: 6px 18px;
+  padding: 0.45rem clamp(0.65rem, 1.3vw, 1.05rem);
   border-radius: 20px;
-  font-size: 0.85rem;
+  font-size: clamp(0.72rem, 0.78vw, 0.85rem);
   font-weight: 700;
   cursor: pointer;
   font-family: 'Cairo', sans-serif;
   transition: all 0.2s ease;
+  white-space: nowrap;
+  min-width: 74px;
+  line-height: 1.2;
 }
 
 .options-btn:hover {
@@ -117,6 +122,10 @@
   color: #FFF;
   font-size: 0.8rem;
   font-weight: 700;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .switch-btn {
@@ -456,20 +465,51 @@
 /* Responsive */
 @media (max-width: 1100px) {
   .sidebar {
-    width: 260px;
-    min-width: 230px;
+    width: clamp(230px, 30vw, 270px);
+    min-width: 220px;
     padding: 12px 10px 16px;
     gap: 10px;
   }
+  .options-btn { min-width: 68px; }
   .round-title { font-size: 1.5rem; }
   .score-hex { width: 44px; height: 44px; }
 }
 
 @media (max-width: 900px) {
   .sidebar {
-    width: 220px;
-    min-width: 200px;
+    width: clamp(200px, 34vw, 240px);
+    min-width: 190px;
+    padding: 10px 8px 14px;
+    gap: 8px;
   }
+  .sidebar-top { gap: 6px; }
+  .options-btn {
+    min-width: 62px;
+    padding: 0.35rem 0.6rem;
+    font-size: 0.7rem;
+  }
+  .question-area { padding: 10px 10px; }
+  .question-text { font-size: 0.85rem; }
+  .question-answer { font-size: 0.74rem; }
   .round-title { font-size: 1.3rem; }
   .assign-btn { font-size: 0.7rem; padding: 8px 4px; }
+}
+
+@media (max-width: 700px) {
+  .sidebar {
+    width: min(210px, 38vw);
+    min-width: 170px;
+    max-width: 210px;
+  }
+  .sidebar-title-img {
+    transform: scale(0.92);
+    transform-origin: center;
+  }
+  .round-title { font-size: 1.1rem; }
+  .options-title { font-size: 0.82rem; }
+  .options-empty,
+  .player-name,
+  .switch-btn,
+  .status-text { font-size: 0.72rem; }
+  .buzzer-btn { font-size: 1.05rem; padding: 12px 10px; }
 }

@@ -3,29 +3,57 @@
 import { useState, useEffect, useCallback } from 'react';
 import './RotateOverlay.css';
 
+function detectMobileOrTablet() {
+  if (typeof window === 'undefined') return false;
+  const ua = navigator.userAgent || '';
+  return /Android|iPhone|iPad|iPod|Mobile|Tablet/i.test(ua) ||
+    (navigator.maxTouchPoints && navigator.maxTouchPoints > 1);
+}
+
+function detectIsPWA() {
+  if (typeof window === 'undefined') return false;
+  return window.navigator.standalone === true ||
+    window.matchMedia('(display-mode: standalone)').matches ||
+    window.matchMedia('(display-mode: fullscreen)').matches;
+}
+
+function detectIsFullscreen() {
+  if (typeof document === 'undefined') return false;
+  return !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+}
+
+function detectInitialOverlayMode() {
+  if (typeof window === 'undefined') return null;
+  if (!detectMobileOrTablet()) return null;
+
+  const pwa = detectIsPWA();
+  const isPortrait = window.innerHeight > window.innerWidth;
+
+  if (pwa) return isPortrait ? 'rotate' : null;
+  if (isPortrait) return 'rotate';
+  if (!detectIsFullscreen()) return 'fullscreen';
+  return null;
+}
+
 export default function RotateOverlay() {
-  const [overlayMode, setOverlayMode] = useState(null); // null | 'rotate' | 'fullscreen'
-  const [isIOS, setIsIOS] = useState(false);
-  const [isPWA, setIsPWA] = useState(false);
+  const [overlayMode, setOverlayMode] = useState(detectInitialOverlayMode); // null | 'rotate' | 'fullscreen'
+  const [isIOS] = useState(() => {
+    if (typeof navigator === 'undefined') return false;
+    const ua = navigator.userAgent || '';
+    return /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  });
+  const [isPWA, setIsPWA] = useState(detectIsPWA);
 
   const isMobileOrTablet = useCallback(() => {
-    if (typeof window === 'undefined') return false;
-    const ua = navigator.userAgent || '';
-    return /Android|iPhone|iPad|iPod|Mobile|Tablet/i.test(ua) ||
-      (navigator.maxTouchPoints && navigator.maxTouchPoints > 1);
+    return detectMobileOrTablet();
   }, []);
 
   const checkIsFullscreen = useCallback(() => {
-    if (typeof document === 'undefined') return false;
-    return !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+    return detectIsFullscreen();
   }, []);
 
   const checkIsPWA = useCallback(() => {
-    if (typeof window === 'undefined') return false;
-    // Check if running as installed PWA / standalone
-    return window.navigator.standalone === true ||
-      window.matchMedia('(display-mode: standalone)').matches ||
-      window.matchMedia('(display-mode: fullscreen)').matches;
+    return detectIsPWA();
   }, []);
 
   const checkState = useCallback(() => {
@@ -56,18 +84,16 @@ export default function RotateOverlay() {
   }, [isMobileOrTablet, checkIsFullscreen, checkIsPWA]);
 
   useEffect(() => {
-    // Detect iOS
-    const ua = navigator.userAgent || '';
-    setIsIOS(/iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1));
+    const handleOrientationChange = () => setTimeout(checkState, 200);
 
-    checkState();
     window.addEventListener('resize', checkState);
-    window.addEventListener('orientationchange', () => setTimeout(checkState, 200));
+    window.addEventListener('orientationchange', handleOrientationChange);
     document.addEventListener('fullscreenchange', checkState);
     document.addEventListener('webkitfullscreenchange', checkState);
 
     return () => {
       window.removeEventListener('resize', checkState);
+      window.removeEventListener('orientationchange', handleOrientationChange);
       document.removeEventListener('fullscreenchange', checkState);
       document.removeEventListener('webkitfullscreenchange', checkState);
     };
@@ -133,7 +159,7 @@ export default function RotateOverlay() {
                   </div>
                   <div className="install-step-item">
                     <span className="install-step-num">2</span>
-                    <span>اختر <strong>"إضافة إلى الشاشة الرئيسية"</strong> أو <strong>"تثبيت التطبيق"</strong></span>
+                    <span>اختر <strong>&quot;إضافة إلى الشاشة الرئيسية&quot;</strong> أو <strong>&quot;تثبيت التطبيق&quot;</strong></span>
                   </div>
                   <div className="install-step-item">
                     <span className="install-step-num">3</span>
@@ -155,7 +181,7 @@ export default function RotateOverlay() {
                 </div>
                 <div className="install-step-item">
                   <span className="install-step-num">2</span>
-                  <span>اختر <strong>"إضافة إلى الشاشة الرئيسية"</strong></span>
+                    <span>اختر <strong>&quot;إضافة إلى الشاشة الرئيسية&quot;</strong></span>
                 </div>
                 <div className="install-step-item">
                   <span className="install-step-num">3</span>

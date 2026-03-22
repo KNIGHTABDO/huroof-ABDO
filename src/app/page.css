@@ -136,6 +136,15 @@
   box-shadow: 0 10px 35px rgba(0,0,0,0.3);
 }
 
+.landing-btn:disabled,
+.join-submit-btn:disabled,
+.scan-qr-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
 .create-btn {
   background: linear-gradient(135deg, #F47B20, #E86A10);
   box-shadow: 0 5px 20px rgba(244,123,32,0.3);
@@ -290,6 +299,13 @@
 
 .join-submit-btn:hover {
   box-shadow: 0 4px 16px rgba(45,184,75,0.3);
+}
+
+.join-submit-btn:disabled:hover,
+.scan-qr-btn:disabled:hover,
+.landing-btn:disabled:hover {
+  transform: none;
+  box-shadow: none;
 }
 
 .join-cancel-btn {

@@ -1,76 +1,92 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useEffect, useRef, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import './page.css';
+import { normalizePlayerName, normalizeRoomCode, extractRoomCodeFromScan } from '../lib/validation';
 
 // The background is completely managed via CSS background-image now.
 
 import { Scanner } from '@yudiel/react-qr-scanner';
 
+const ACTION_COOLDOWN_MS = 1200;
+
 function LandingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const joinCode = searchParams.get('join') || '';
+  const initialJoinCode = normalizeRoomCode(joinCode) || '';
 
-  const [showJoin, setShowJoin] = useState(false);
+  const [showJoin, setShowJoin] = useState(Boolean(initialJoinCode));
   const [showScanner, setShowScanner] = useState(false);
-  const [roomCode, setRoomCode] = useState('');
+  const [roomCode, setRoomCode] = useState(initialJoinCode);
   const [playerName, setPlayerName] = useState('');
   const [error, setError] = useState('');
+  const [isActionLocked, setIsActionLocked] = useState(false);
+  const actionLockTimerRef = useRef(null);
 
-  // Auto-open join form if ?join= param is present (from QR code)
   useEffect(() => {
-    if (joinCode) {
-      setRoomCode(joinCode.toUpperCase());
-      setShowJoin(true);
+    return () => {
+      if (actionLockTimerRef.current) {
+        clearTimeout(actionLockTimerRef.current);
+      }
+    };
+  }, []);
+
+  const lockAction = () => {
+    setIsActionLocked(true);
+
+    if (actionLockTimerRef.current) {
+      clearTimeout(actionLockTimerRef.current);
     }
-  }, [joinCode]);
+
+    actionLockTimerRef.current = setTimeout(() => {
+      setIsActionLocked(false);
+      actionLockTimerRef.current = null;
+    }, ACTION_COOLDOWN_MS);
+  };
+
+  const shouldBlockRapidAction = () => {
+    if (!isActionLocked) return false;
+    setError('الرجاء الانتظار لحظة قصيرة قبل المحاولة مرة أخرى.');
+    return true;
+  };
 
   const handleCreateGame = () => {
+    if (shouldBlockRapidAction()) return;
+    lockAction();
     router.push('/game?role=host');
   };
 
   const handleJoinGame = () => {
-    if (!playerName.trim()) {
-      setError('يرجى إدخال اسمك أولاً للانضمام');
+    if (shouldBlockRapidAction()) return;
+    lockAction();
+
+    const validName = normalizePlayerName(playerName);
+    if (!validName) {
+      setError('يرجى إدخال اسم صحيح (1-20 حرفاً)');
       return;
     }
-    if (!roomCode.trim() || roomCode.trim().length < 4) {
-      setError('يرجى إدخال أو مسح كود الغرفة');
+
+    const validCode = normalizeRoomCode(roomCode);
+    if (!validCode) {
+      setError('كود الغرفة يجب أن يكون 6 أحرف/أرقام');
       return;
     }
-    router.push(`/game?role=player&room=${roomCode.trim().toUpperCase()}&name=${encodeURIComponent(playerName.trim())}`);
+
+    router.push(`/game?role=player&room=${validCode}&name=${encodeURIComponent(validName)}`);
   };
 
   const handleScan = (result) => {
-    if (!result) return;
-    const text = Array.isArray(result) ? result[0]?.rawValue : result;
-    if (!text) return;
-    
-    // text looks like: http://192.168.11.../?join=ABCXYZ
-    try {
-      const parsedUrl = new URL(text);
-      const code = parsedUrl.searchParams.get('join');
-      if (code && code.length >= 4) {
-        setRoomCode(code.toUpperCase());
-        setShowScanner(false);
-      } else if (text.length === 6) {
-        // Fallback for direct 6 letter codes
-        setRoomCode(text.toUpperCase());
-        setShowScanner(false);
-      }
-    } catch {
-      // If it's not a valid URL URL() throws error, maybe it's raw 6 char code?
-      if (text.length >= 4 && text.length <= 6) {
-        setRoomCode(text.toUpperCase());
-        setShowScanner(false);
-      } else {
-        setError("لم يتم التعرف على الكود، يرجى المحاولة مرة أخرى.");
-      }
+    const code = extractRoomCodeFromScan(result);
+    if (!code) {
+      setError('لم يتم التعرف على كود صالح، حاول مرة أخرى.');
+      return;
     }
+    setRoomCode(code);
+    setShowScanner(false);
   };
 
   return (
@@ -89,14 +105,18 @@ function LandingContent() {
 
         {/* Action Buttons */}
         <div className="landing-actions">
-          <button className="landing-btn create-btn" onClick={handleCreateGame}>
+          <button className="landing-btn create-btn" onClick={handleCreateGame} disabled={isActionLocked}>
             <span className="btn-icon">🎮</span>
             <span className="btn-text">إنشاء لعبة</span>
             <span className="btn-desc">كن المضيف واطرح الأسئلة</span>
           </button>
 
           {!showJoin ? (
-            <button className="landing-btn join-btn" onClick={() => setShowJoin(true)}>
+            <button className="landing-btn join-btn" onClick={() => {
+              if (shouldBlockRapidAction()) return;
+              lockAction();
+              setShowJoin(true);
+            }} disabled={isActionLocked}>
               <span className="btn-icon">🤝</span>
               <span className="btn-text">انضم للعبة</span>
               <span className="btn-desc">ادخل كود الغرفة وانضم لفريقك</span>
@@ -115,7 +135,9 @@ function LandingContent() {
                    <Scanner 
                      onScan={(result) => handleScan(result)} 
                      onError={(e) => {
-                       console.log("Scanner Error", e);
+                       if (process.env.NODE_ENV !== 'production') {
+                         console.warn('Scanner Error', e);
+                       }
                        if (e?.message?.includes("secure context")) {
                          setError("الكاميرا تتطلب اتصالاً آمناً (HTTPS). يرجى إدخال الكود يدوياً للآن.");
                          setShowScanner(false);
@@ -149,13 +171,17 @@ function LandingContent() {
                   maxLength={6}
                   onKeyDown={(e) => e.key === 'Enter' && handleJoinGame()}
                 />
-                <button className="scan-qr-btn" onClick={() => setShowScanner(true)} title="مسح رمز QR">
+                <button className="scan-qr-btn" onClick={() => {
+                  if (shouldBlockRapidAction()) return;
+                  lockAction();
+                  setShowScanner(true);
+                }} title="مسح رمز QR" disabled={isActionLocked}>
                   📷 
                 </button>
               </div>
               {error && <p className="join-error">{error}</p>}
               <div className="join-form-actions">
-                <button className="join-submit-btn" onClick={handleJoinGame}>
+                <button className="join-submit-btn" onClick={handleJoinGame} disabled={isActionLocked}>
                   الدخول للغرفة
                 </button>
                 <button className="join-cancel-btn" onClick={() => { setShowJoin(false); setRoomCode(''); setPlayerName(''); }}>

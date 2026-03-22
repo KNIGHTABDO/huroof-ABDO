@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import './InfoLayout.css';
 
 export default function InfoLayout({ title, subtitle, children }) {
@@ -13,7 +14,14 @@ export default function InfoLayout({ title, subtitle, children }) {
       <div className="info-card">
         <header className="info-header">
           <Link href="/">
-            <img src="/assets/logo_transparent.png" alt="Logo" className="info-logo" />
+            <Image
+              src="/assets/logo_transparent.png"
+              alt="Logo"
+              className="info-logo"
+              width={120}
+              height={60}
+              priority
+            />
           </Link>
           <h1 className="info-title">{title}</h1>
           {subtitle && <p className="info-subtitle">{subtitle}</p>}

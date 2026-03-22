@@ -25,6 +25,7 @@ import {
   disconnect,
   getPlayers,
 } from '../../lib/peerManager';
+import { normalizePlayerName, normalizeRoomCode } from '../../lib/validation';
 import './page.css';
 
 function GameContent() {
@@ -94,10 +95,19 @@ function GameContent() {
           setConnected(true);
           setLoading(false);
         } else {
+          const validRoom = normalizeRoomCode(roomParam);
+          const validName = normalizePlayerName(nameParam);
+
+          if (!validRoom || !validName) {
+            setError('بيانات الانضمام غير صالحة. تحقق من الاسم وكود الغرفة.');
+            setLoading(false);
+            return;
+          }
+
           setLoading(true);
           await joinGame(
-            roomParam,
-            nameParam,
+            validRoom,
+            validName,
             (state, yourTeam, playersList) => {
               setGameState(state);
               if (yourTeam) setMyTeam(yourTeam);
@@ -109,7 +119,7 @@ function GameContent() {
               setMyTeam(team);
             },
             (err) => {
-              setError('لم يتم العثور على اللعبة. تأكد من كود الغرفة.');
+              setError('تعذر العثور على الغرفة. تحقق من الكود أو اطلب كوداً جديداً من المضيف.');
               setLoading(false);
             }
           );
@@ -189,7 +199,9 @@ function GameContent() {
         setCopySuccess(true);
         setTimeout(() => setCopySuccess(false), 2000);
       }).catch(err => {
-        console.error('Failed to copy: ', err);
+        if (process.env.NODE_ENV !== 'production') {
+          console.error('Failed to copy: ', err);
+        }
       });
     } else {
       // Fallback for non-HTTPS local network (e.g. 192.168.x.x)
@@ -211,7 +223,9 @@ function GameContent() {
         setCopySuccess(true);
         setTimeout(() => setCopySuccess(false), 2000);
       } catch (err) {
-        console.error('Fallback copy failed: ', err);
+        if (process.env.NODE_ENV !== 'production') {
+          console.error('Fallback copy failed: ', err);
+        }
       }
     }
   }, [roomCode]);
@@ -220,7 +234,7 @@ function GameContent() {
     return (
       <div className="game-loading">
         <Image src="/assets/logo_transparent.png" alt="ينتظر" width={300} height={250} priority style={{ objectFit: 'contain', animation: 'logoPulse 2s infinite' }} />
-        <p>{role === 'host' ? 'جاري إنشاء الغرفة...' : 'جاري الاتصال بالغرفة...'}</p>
+        <p>{role === 'host' ? 'جاري تجهيز الغرفة...' : 'جاري الانضمام للغرفة، انتظر لحظة...'}</p>
       </div>
     );
   }
@@ -333,7 +347,7 @@ export default function GamePage() {
     <Suspense fallback={
       <div className="game-loading">
         <Image src="/assets/logo_transparent.png" alt="ينتظر" width={300} height={250} priority style={{ objectFit: 'contain', animation: 'logoPulse 2s infinite' }} />
-        <p>جاري التحميل...</p>
+        <p>جاري تهيئة اللعبة...</p>
       </div>
     }>
       <GameContent />

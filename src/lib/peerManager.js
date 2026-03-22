@@ -48,6 +48,19 @@ export function setPlayerTeam(playerId, team) {
 }
 
 let heartbeatInterval = null; // Keep-alive interval for host
+const isDev = process.env.NODE_ENV !== 'production';
+
+function devLog(...args) {
+  if (isDev) console.log(...args);
+}
+
+function devWarn(...args) {
+  if (isDev) console.warn(...args);
+}
+
+function devError(...args) {
+  if (isDev) console.error(...args);
+}
 
 /**
  * HOST: Create a game room.
@@ -60,7 +73,7 @@ export async function createGame(onPlayerJoin, onPlayerAction, onError) {
   playerMap.clear();
 
   function setupConnectionHandler(conn) {
-    console.log('Player connected:', conn.peer);
+    devLog('Player connected:', conn.peer);
     connections.push(conn);
 
     conn.on('open', () => {
@@ -76,7 +89,7 @@ export async function createGame(onPlayerJoin, onPlayerAction, onError) {
         if (playerMap.has(playerId)) {
           // Rejoining player — give them their original team back!
           team = playerMap.get(playerId).team;
-          console.log(`Player ${data.payload.name} reconnected to team ${team}`);
+          devLog(`Player ${data.payload.name} reconnected to team ${team}`);
         } else {
           // New player — auto-assign team: alternate between orange and green
           const orangeCount = Array.from(playerMap.values()).filter(p => p.team === 'orange').length;
@@ -111,7 +124,7 @@ export async function createGame(onPlayerJoin, onPlayerAction, onError) {
     peerInstance = new Peer(peerId, { debug: 1 });
 
     peerInstance.on('open', (id) => {
-      console.log('Host peer opened with ID:', id);
+      devLog('Host peer opened with ID:', id);
       resolve({ roomCode, peer: peerInstance });
     });
 
@@ -119,12 +132,12 @@ export async function createGame(onPlayerJoin, onPlayerAction, onError) {
 
     // Auto-reconnect when disconnected from signaling server
     peerInstance.on('disconnected', () => {
-      console.warn('Host disconnected from signaling server, attempting reconnect...');
+      devWarn('Host disconnected from signaling server, attempting reconnect...');
       if (peerInstance && !peerInstance.destroyed) {
         try {
           peerInstance.reconnect();
         } catch (e) {
-          console.error('Reconnect failed:', e);
+          devError('Reconnect failed:', e);
         }
       }
     });
@@ -133,17 +146,17 @@ export async function createGame(onPlayerJoin, onPlayerAction, onError) {
     if (heartbeatInterval) clearInterval(heartbeatInterval);
     heartbeatInterval = setInterval(() => {
       if (peerInstance && !peerInstance.destroyed && peerInstance.disconnected) {
-        console.warn('Heartbeat: peer disconnected, reconnecting...');
+        devWarn('Heartbeat: peer disconnected, reconnecting...');
         try {
           peerInstance.reconnect();
         } catch (e) {
-          console.error('Heartbeat reconnect failed:', e);
+          devError('Heartbeat reconnect failed:', e);
         }
       }
     }, 15000); // Check every 15 seconds
 
     peerInstance.on('error', (err) => {
-      console.error('Peer error:', err);
+      devError('Peer error:', err);
       // If it's a "peer-unavailable" type, don't crash — just log it
       if (err.type === 'peer-unavailable') return;
       if (onError) onError(err);
@@ -212,7 +225,7 @@ export async function joinGame(roomCode, playerName, onStateUpdate, onTeamAssign
       peerInstance = new Peer(playerId, { debug: 1 });
 
       const connectionTimeout = setTimeout(() => {
-        console.warn(`Join attempt ${attempt} timed out`);
+        devWarn(`Join attempt ${attempt} timed out`);
         if (peerInstance) peerInstance.destroy();
         reject(new Error('انتهت مهلة الاتصال'));
       }, 10000); // 10s timeout per attempt
@@ -223,7 +236,7 @@ export async function joinGame(roomCode, playerName, onStateUpdate, onTeamAssign
 
         hostConnection.on('open', () => {
           clearTimeout(connectionTimeout);
-          console.log('Connected to host!');
+          devLog('Connected to host!');
           // Send our name to the host
           hostConnection.send({ type: 'PLAYER_JOIN', payload: { name: playerName } });
           resolve({ connection: hostConnection });
@@ -239,24 +252,24 @@ export async function joinGame(roomCode, playerName, onStateUpdate, onTeamAssign
         });
 
         hostConnection.on('close', () => {
-          console.warn('Disconnected from host connection. Will auto-reconnect...');
+          devWarn('Disconnected from host connection. Will auto-reconnect...');
           hostConnection = null;
         });
 
         hostConnection.on('error', (err) => {
           clearTimeout(connectionTimeout);
-          console.error('Connection error:', err);
+          devError('Connection error:', err);
           reject(err);
         });
       });
 
       peerInstance.on('disconnected', () => {
-        console.warn('Player disconnected from signaling server. Reconnecting...');
+        devWarn('Player disconnected from signaling server. Reconnecting...');
         if (peerInstance && !peerInstance.destroyed) {
           try {
             peerInstance.reconnect();
           } catch (e) {
-            console.error('Player reconnect failed', e);
+            devError('Player reconnect failed', e);
           }
         }
       });
@@ -265,11 +278,11 @@ export async function joinGame(roomCode, playerName, onStateUpdate, onTeamAssign
         clearTimeout(connectionTimeout);
         if (err.type === 'peer-unavailable') {
           // The host might be temporarily disconnected, do not crash
-          console.warn('Host unavailable currently...');
+          devWarn('Host unavailable currently...');
           reject(err);
           return;
         }
-        console.error(`Peer error (attempt ${attempt}):`, err);
+        devError(`Peer error (attempt ${attempt}):`, err);
         reject(err);
       });
     });
@@ -279,13 +292,13 @@ export async function joinGame(roomCode, playerName, onStateUpdate, onTeamAssign
   if (window.playerReconnectInterval) clearInterval(window.playerReconnectInterval);
   window.playerReconnectInterval = setInterval(() => {
     if (peerInstance && !peerInstance.destroyed && !hostConnection) {
-      console.log('Player auto-reconnecting to host...');
+      devLog('Player auto-reconnecting to host...');
       const hostPeerId = `huroof-${roomCode}`;
       try {
         hostConnection = peerInstance.connect(hostPeerId, { reliable: true });
         
         hostConnection.on('open', () => {
-          console.log('Reconnected to host successfully!');
+          devLog('Reconnected to host successfully!');
           hostConnection.send({ type: 'PLAYER_JOIN', payload: { name: playerName } });
         });
 
@@ -303,7 +316,7 @@ export async function joinGame(roomCode, playerName, onStateUpdate, onTeamAssign
         });
 
       } catch (e) {
-        console.error('Auto-reconnect attempt failed', e);
+        devError('Auto-reconnect attempt failed', e);
       }
     }
   }, 3000); // Check every 3 seconds
@@ -313,7 +326,7 @@ export async function joinGame(roomCode, playerName, onStateUpdate, onTeamAssign
     try {
       return await tryConnect();
     } catch (err) {
-      console.warn(`Join attempt ${attempt} failed:`, err.message);
+      devWarn(`Join attempt ${attempt} failed:`, err.message);
       if (i < maxRetries - 1) {
         // Wait before retrying (500ms, 1500ms)
         await new Promise(r => setTimeout(r, 500 + i * 1000));
