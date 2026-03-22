@@ -155,7 +155,23 @@
   box-shadow: 0 5px 20px rgba(45,184,75,0.3);
 }
 
-.btn-icon { font-size: 1.8rem; }
+.spectate-btn {
+  background: linear-gradient(135deg, #7158E2, #5D4ABD);
+  box-shadow: 0 5px 20px rgba(113, 88, 226, 0.3);
+}
+
+.btn-icon-img {
+  width: 54px;
+  height: 54px;
+  object-fit: contain;
+  filter: url(#chroma-key-green);
+  margin-bottom: -4px;
+  transition: transform 0.3s ease;
+}
+
+.landing-btn:hover .btn-icon-img {
+  transform: scale(1.15) rotate(5deg);
+}
 
 .btn-text {
   font-size: 1.3rem;

@@ -13,9 +13,9 @@
 
 1. Host opens `/game?role=host`
 2. Host creates room via PeerJS id `huroof-<ROOM_CODE>`
-3. Player joins with `/game?role=player&room=<CODE>&name=<NAME>`
+3. Player joins with `/game?role=player&room=<CODE>&name=<NAME>` or `/game?role=spectator&room=<CODE>&name=<NAME>`
 4. Host broadcasts state updates to all peers
-5. Player actions (`HEX_CLICK`, `BUZZ`) are sent to host and re-broadcast as canonical game state
+5. Player actions (`HEX_CLICK`, `BUZZ`) are sent to host and re-broadcast as canonical game state (Spectators cannot perform these actions)
 
 ## Development Security Guardrails
 

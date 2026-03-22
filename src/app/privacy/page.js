@@ -9,7 +9,7 @@ export default function PrivacyPage() {
   return (
     <InfoLayout 
       title="سياسة الخصوصية" 
-      subtitle="آخر تحديث: 22 مارس 2026 (تحسينات الاعتمادية والحماية والتوزيع)"
+      subtitle="آخر تحديث: 22 مارس 2026 (إضافة وضع المشاهد وتحسينات التوزيع)"
     >
       <h2>مقدمة</h2>
       <p>

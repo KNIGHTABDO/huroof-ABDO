@@ -20,6 +20,7 @@ export default function Sidebar({
   onResetGame,
   players = [],
   myTeam = null,
+  isSpectator = false,
   onSwitchTeam,
   onClearBuzzer,
   onBuzz,
@@ -37,13 +38,15 @@ export default function Sidebar({
         <div className="sidebar-title-img">
           <Image src="/assets/logo_transparent.png" alt="حروف مع عبدو" width={180} height={60} style={{ objectFit: 'contain' }} />
         </div>
-        <button className="options-btn" onClick={() => setShowOptions(!showOptions)}>
-          {showOptions ? 'إغلاق' : 'خيارات'}
-        </button>
+        {!isSpectator && (
+          <button className="options-btn" onClick={() => setShowOptions(!showOptions)}>
+            {showOptions ? 'إغلاق' : 'خيارات'}
+          </button>
+        )}
       </div>
 
       {/* Options Panel (host only) */}
-      {showOptions && (
+      {showOptions && !isSpectator && (
         <div className="options-panel">
           {isHost ? (
             <>
@@ -93,9 +96,16 @@ export default function Sidebar({
       )}
 
       {/* Player's team indicator (for non-host players) */}
-      {!isHost && myTeam && (
+      {!isHost && !isSpectator && myTeam && (
         <div className={`my-team-badge team-badge-${myTeam}`}>
           {myTeam === 'orange' ? '🟠 أنت في الفريق البرتقالي' : '🟢 أنت في الفريق الأخضر'}
+        </div>
+      )}
+
+      {/* Spectator indicator */}
+      {isSpectator && (
+        <div className="my-team-badge team-badge-spectator">
+          👁️ أنت تشاهد اللعبة الآن
         </div>
       )}
 
@@ -121,6 +131,20 @@ export default function Sidebar({
                   </div>
                 )}
               </>
+            ) : isSpectator ? (
+              <div className="player-buzzer-area">
+                <p className="question-text">{currentQuestion.question}</p>
+                <p className="question-hidden-text" style={{marginTop: '15px', opacity: 0.8}}>⏳ بانتظار إجابة أحد الفرق...</p>
+                {buzzerInfo && (
+                  <div className={`buzzer-status buzzer-status-other`}>
+                    <div className="buzzer-status-icon">🔔</div>
+                    <div className="buzzer-status-text">
+                      تم قرع الجرس!
+                    </div>
+                    <div className="buzzer-status-name">اللاعب: {buzzerInfo.playerName}</div>
+                  </div>
+                )}
+              </div>
             ) : (
               <div className="player-buzzer-area">
                 <p className="question-hidden-text">🎙️ المضيف يقرأ السؤال الآن...</p>

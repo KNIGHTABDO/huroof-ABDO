@@ -9,7 +9,7 @@ export default function TermsPage() {
   return (
     <InfoLayout 
       title="شروط الخدمة" 
-      subtitle="آخر تحديث: 22 مارس 2026 (تحسينات الاعتمادية والتوزيع)"
+      subtitle="آخر تحديث: 22 مارس 2026 (إضافة وضع المشاهد وتحسينات التوزيع)"
     >
       <h2>1. قبول الشروط</h2>
       <p>

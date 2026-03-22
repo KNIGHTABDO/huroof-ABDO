@@ -60,12 +60,18 @@ function LandingContent() {
     router.push('/game?role=host');
   };
 
+  const handleSpectateGame = () => {
+    if (shouldBlockRapidAction()) return;
+    lockAction();
+    setShowJoin('spectator');
+  };
+
   const handleJoinGame = () => {
     if (shouldBlockRapidAction()) return;
     lockAction();
 
-    const validName = normalizePlayerName(playerName);
-    if (!validName) {
+    const validName = normalizePlayerName(playerName || (showJoin === 'spectator' ? 'مشاهد' : ''));
+    if (!validName && showJoin !== 'spectator') {
       setError('يرجى إدخال اسم صحيح (1-20 حرفاً)');
       return;
     }
@@ -76,7 +82,10 @@ function LandingContent() {
       return;
     }
 
-    router.push(`/game?role=player&room=${validCode}&name=${encodeURIComponent(validName)}`);
+    const role = showJoin === 'spectator' ? 'spectator' : 'player';
+    const name = showJoin === 'spectator' ? (playerName || 'مشاهد') : validName;
+
+    router.push(`/game?role=${role}&room=${validCode}&name=${encodeURIComponent(name)}`);
   };
 
   const handleScan = (result) => {
@@ -106,21 +115,29 @@ function LandingContent() {
         {/* Action Buttons */}
         <div className="landing-actions">
           <button className="landing-btn create-btn" onClick={handleCreateGame} disabled={isActionLocked}>
-            <span className="btn-icon">🎮</span>
+            <Image src="/assets/btn_icon_create.png" alt="" width={48} height={48} className="btn-icon-img" />
             <span className="btn-text">إنشاء لعبة</span>
             <span className="btn-desc">كن المضيف واطرح الأسئلة</span>
           </button>
 
           {!showJoin ? (
-            <button className="landing-btn join-btn" onClick={() => {
-              if (shouldBlockRapidAction()) return;
-              lockAction();
-              setShowJoin(true);
-            }} disabled={isActionLocked}>
-              <span className="btn-icon">🤝</span>
-              <span className="btn-text">انضم للعبة</span>
-              <span className="btn-desc">ادخل كود الغرفة وانضم لفريقك</span>
-            </button>
+            <>
+              <button className="landing-btn join-btn" onClick={() => {
+                if (shouldBlockRapidAction()) return;
+                lockAction();
+                setShowJoin('player');
+              }} disabled={isActionLocked}>
+                <Image src="/assets/btn_icon_join.png" alt="" width={48} height={48} className="btn-icon-img" />
+                <span className="btn-text">انضم للعبة</span>
+                <span className="btn-desc">ادخل كود الغرفة وانضم لفريقك</span>
+              </button>
+
+              <button className="landing-btn spectate-btn" onClick={handleSpectateGame} disabled={isActionLocked}>
+                <Image src="/assets/btn_icon_spectate.png" alt="" width={48} height={48} className="btn-icon-img" />
+                <span className="btn-text">وضع المشاهد</span>
+                <span className="btn-desc">شاهد اللعبة مباشرة بدون مشاركة</span>
+              </button>
+            </>
           ) : showScanner ? (
             <div className="join-form qr-scanner-view">
               <h3 style={{color: '#fff', fontSize: '1rem', marginBottom: '10px'}}>وجه الكاميرا لرمز الـ QR الخاص بالمضيف</h3>
@@ -155,7 +172,7 @@ function LandingContent() {
               <input
                 type="text"
                 className="name-input"
-                placeholder="اسمك هنا..."
+                placeholder={showJoin === 'spectator' ? "اسمك (اختياري)..." : "اسمك هنا..."}
                 value={playerName}
                 onChange={(e) => { setPlayerName(e.target.value); setError(''); }}
                 maxLength={20}
@@ -182,9 +199,9 @@ function LandingContent() {
               {error && <p className="join-error">{error}</p>}
               <div className="join-form-actions">
                 <button className="join-submit-btn" onClick={handleJoinGame} disabled={isActionLocked}>
-                  الدخول للغرفة
+                  {showJoin === 'spectator' ? 'دخول كمشاهد' : 'الدخول للغرفة'}
                 </button>
-                <button className="join-cancel-btn" onClick={() => { setShowJoin(false); setRoomCode(''); setPlayerName(''); }}>
+                <button className="join-cancel-btn" onClick={() => { setShowJoin(null); setRoomCode(''); setPlayerName(''); }}>
                   إلغاء
                 </button>
               </div>
@@ -206,6 +223,19 @@ function LandingContent() {
           </div>
         </div>
       </div>
+
+      {/* Chroma Key Filter for Premium Icons */}
+      <svg width="0" height="0" style={{ position: 'absolute', pointerEvents: 'none', visibility: 'hidden' }}>
+        <defs>
+          <filter id="chroma-key-green">
+            <feColorMatrix type="matrix" values="
+              1 0 0 0 0
+              0 1 0 0 0
+              0 0 1 0 0
+              1.1 -2.2 1.1 1 0" />
+          </filter>
+        </defs>
+      </svg>
     </div>
   );
 }

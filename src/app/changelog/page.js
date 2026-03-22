@@ -14,6 +14,20 @@ export default function ChangelogPage() {
       <div className="changelog-item">
         <span className="info-date">22 مارس 2026</span>
         <h3>
+          <span className="changelog-version">v2.2.0</span>
+          إطلاق وضع المشاهد (Spectate Mode)
+        </h3>
+        <ul>
+          <li><strong>جديد:</strong> إضافة "وضع المشاهد"؛ الآن يمكن للجمهور الانضمام للعبة ومتابعة التحدي مباشرة دون الحاجة للمشاركة في اللعب أو رؤية الإجابات.</li>
+          <li><strong>جديد:</strong> واجهة مستخدم مخصصة للمشاهدين تخفي عناصر التحكم والجرس لضمان تجربة مشاهدة مريحة.</li>
+          <li><strong>تحسين:</strong> تحديث نظام الاتصال المباشر (P2P) لدعم تعدد الأدوار في نفس الغرفة بكفاءة عالية.</li>
+          <li><strong>تحسين:</strong> إضافة خيار الانضمام كمشاهد في الصفحة الرئيسية مع تبسيط خطوات الدخول.</li>
+        </ul>
+      </div>
+
+      <div className="changelog-item">
+        <span className="info-date">22 مارس 2026</span>
+        <h3>
           <span className="changelog-version">v2.1.1</span>
           تطبيق Android وتوزيع الإفراجات
         </h3>

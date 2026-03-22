@@ -82,11 +82,15 @@ export async function createGame(onPlayerJoin, onPlayerAction, onError) {
 
     conn.on('data', (data) => {
       if (data.type === 'PLAYER_JOIN') {
-        // Player sent their name — register them
+        // Player sent their name and optional role — register them
         const playerId = conn.peer;
+        const role = data.payload.role || 'player';
         
         let team;
-        if (playerMap.has(playerId)) {
+        if (role === 'spectator') {
+          team = 'spectator';
+          devLog(`Spectator ${data.payload.name} connected`);
+        } else if (playerMap.has(playerId)) {
           // Rejoining player — give them their original team back!
           team = playerMap.get(playerId).team;
           devLog(`Player ${data.payload.name} reconnected to team ${team}`);
@@ -101,12 +105,13 @@ export async function createGame(onPlayerJoin, onPlayerAction, onError) {
           id: playerId,
           name: data.payload.name,
           team: team,
+          role: role,
         });
 
-        // Send the player their team assignment
+        // Send the player their team assignment (or spectator status)
         conn.send({ type: 'TEAM_ASSIGNED', payload: { team, playerId } });
 
-        if (onPlayerJoin) onPlayerJoin(conn, { name: data.payload.name, team, id: playerId });
+        if (onPlayerJoin) onPlayerJoin(conn, { name: data.payload.name, team, id: playerId, role });
       } else {
         if (onPlayerAction) onPlayerAction(data, conn);
       }
@@ -206,14 +211,14 @@ export function getPlayerCount() {
  * PLAYER: Join a game room by code, sending player name.
  * Includes retry logic for more resilient connections (e.g. from QR scans).
  */
-export async function joinGame(roomCode, playerName, onStateUpdate, onTeamAssigned, onError) {
+export async function joinGame(roomCode, playerName, onStateUpdate, onTeamAssigned, onError, role = 'player') {
   const Peer = await getPeer();
   const maxRetries = 3;
   let attempt = 0;
 
   async function tryConnect() {
     attempt++;
-    const playerId = `huroof-player-${Math.random().toString(36).substr(2, 9)}`;
+    const playerId = `huroof-${role}-${Math.random().toString(36).substr(2, 9)}`;
 
     return new Promise((resolve, reject) => {
       // Destroy any existing instance from a previous attempt
@@ -225,7 +230,7 @@ export async function joinGame(roomCode, playerName, onStateUpdate, onTeamAssign
       peerInstance = new Peer(playerId, { debug: 1 });
 
       const connectionTimeout = setTimeout(() => {
-        devWarn(`Join attempt ${attempt} timed out`);
+        devLog(`Join attempt ${attempt} timed out`);
         if (peerInstance) peerInstance.destroy();
         reject(new Error('انتهت مهلة الاتصال'));
       }, 10000); // 10s timeout per attempt
@@ -237,8 +242,8 @@ export async function joinGame(roomCode, playerName, onStateUpdate, onTeamAssign
         hostConnection.on('open', () => {
           clearTimeout(connectionTimeout);
           devLog('Connected to host!');
-          // Send our name to the host
-          hostConnection.send({ type: 'PLAYER_JOIN', payload: { name: playerName } });
+          // Send our name and role to the host
+          hostConnection.send({ type: 'PLAYER_JOIN', payload: { name: playerName, role } });
           resolve({ connection: hostConnection });
         });
 
@@ -299,7 +304,7 @@ export async function joinGame(roomCode, playerName, onStateUpdate, onTeamAssign
         
         hostConnection.on('open', () => {
           devLog('Reconnected to host successfully!');
-          hostConnection.send({ type: 'PLAYER_JOIN', payload: { name: playerName } });
+          hostConnection.send({ type: 'PLAYER_JOIN', payload: { name: playerName, role } });
         });
 
         hostConnection.on('data', (data) => {

@@ -121,7 +121,8 @@ function GameContent() {
             (err) => {
               setError('تعذر العثور على الغرفة. تحقق من الكود أو اطلب كوداً جديداً من المضيف.');
               setLoading(false);
-            }
+            },
+            role
           );
         }
       } catch (err) {
@@ -249,9 +250,9 @@ function GameContent() {
   }
 
   if (!gameState) return null;
-
+  const isSpectator = role === 'spectator';
   const activeHex = gameState.hexagons.find(h => h.id === gameState.activeHexId);
-  const canClickBoard = gameState.phase === 'selecting' && (role === 'host' || myTeam === gameState.controllingTeam);
+  const canClickBoard = !isSpectator && gameState.phase === 'selecting' && (role === 'host' || myTeam === gameState.controllingTeam);
 
   return (
     <div className="game-page">
@@ -336,6 +337,7 @@ function GameContent() {
           onBuzz={handleBuzz}
           players={players}
           myTeam={myTeam}
+          isSpectator={isSpectator}
         />
       </div>
     </div>

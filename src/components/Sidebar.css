@@ -175,6 +175,11 @@
   box-shadow: 0 4px 15px rgba(45,184,75,0.35);
 }
 
+.team-badge-spectator {
+  background: linear-gradient(135deg, #7158E2, #5D4ABD);
+  box-shadow: 0 4px 15px rgba(113, 88, 226, 0.35);
+}
+
 @keyframes badgePulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.85; }
