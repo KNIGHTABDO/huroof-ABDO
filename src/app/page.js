@@ -196,6 +196,8 @@ function LandingContent() {
         <div className="landing-footer-container" style={{ textAlign: 'center', marginTop: '40px' }}>
           <p className="landing-footer" style={{ marginBottom: '10px' }}>🌙 لعبة المناسبات والجمعات مع الأهل والأصدقاء</p>
           <div className="landing-footer-links" style={{ display: 'flex', justifyContent: 'center', gap: '15px', fontSize: '0.9rem', opacity: 0.7 }}>
+            <Link href="/install" style={{ color: '#fff', textDecoration: 'none' }}>التثبيت والتحميل</Link>
+            <span style={{ color: '#fff' }}>•</span>
             <Link href="/privacy" style={{ color: '#fff', textDecoration: 'none' }}>سياسة الخصوصية</Link>
             <span style={{ color: '#fff' }}>•</span>
             <Link href="/terms" style={{ color: '#fff', textDecoration: 'none' }}>شروط الخدمة</Link>

@@ -14,6 +14,20 @@ export default function ChangelogPage() {
       <div className="changelog-item">
         <span className="info-date">22 مارس 2026</span>
         <h3>
+          <span className="changelog-version">v1.2.2</span>
+          تحديثات التثبيت والتوزيع على Android
+        </h3>
+        <ul>
+          <li><strong>جديد:</strong> إضافة صفحة جديدة <strong>التثبيت والتحميل</strong> عبر المسار <code>/install</code> لتجميع طرق اللعب والتحميل في مكان واحد.</li>
+          <li><strong>جديد:</strong> إضافة روابط مباشرة إلى صفحة الإصدارات الرسمية (GitHub Releases) لتحميل نسخ Android.</li>
+          <li><strong>تحسين:</strong> إضافة رابط صفحة التثبيت في الصفحة الرئيسية لسهولة الوصول للمستخدمين.</li>
+          <li><strong>تحسين:</strong> توحيد اسم التطبيق المعروض على Android باسم <strong>حروف مع عبدو</strong> داخل إعدادات TWA.</li>
+        </ul>
+      </div>
+
+      <div className="changelog-item">
+        <span className="info-date">22 مارس 2026</span>
+        <h3>
           <span className="changelog-version">v1.2.1</span>
           تحديثات الاعتمادية والتوثيق والصيانة
         </h3>

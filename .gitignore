@@ -36,6 +36,27 @@ yarn-error.log*
 # vercel
 .vercel
 
+# android / twa
+android-app/
+*.jks
+*.keystore
+bubblewrap-key.jks
+*.apk
+*.aab
+*.idsig
+
+# android / twa (generated)
+android/twa/.gradle/
+android/twa/build/
+android/twa/app/build/
+android/twa/local.properties
+android/twa/captures/
+android/twa/.idea/
+
+# android sdk / signing local files
+**/local.properties
+**/keystore.properties
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

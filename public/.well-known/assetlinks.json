@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.vercel.huroof_abdo.twa",
+      "sha256_cert_fingerprints": [
+        "E8:B3:06:21:1F:66:F6:7C:0A:2E:0E:E6:86:2B:A6:4B:D4:38:CD:A6:9E:07:50:AD:A6:A5:39:92:98:57:44:AA"
+      ]
+    }
+  }
+]

@@ -9,7 +9,11 @@
     "lint": "eslint",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "android:assetlinks": "node scripts/generate-assetlinks.mjs",
+    "android:assetlinks:dry": "node scripts/generate-assetlinks.mjs --dry-run",
+    "android:twa:init": "cd android/twa && npx @bubblewrap/cli init --manifest=https://huroof-abdo.vercel.app/site.webmanifest",
+    "android:twa:build": "cd android/twa && npx @bubblewrap/cli build"
   },
   "dependencies": {
     "@yudiel/react-qr-scanner": "^2.5.1",

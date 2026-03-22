@@ -49,3 +49,24 @@ npm run test:coverage
 
 - HexBoard is intentionally treated as sensitive rendering logic and should be changed only with high caution.
 - Keep docs, policy pages, and changelog aligned with shipped behavior.
+
+## Android Packaging (TWA)
+
+Android release is handled from the same repository using Trusted Web Activity (TWA):
+
+- Android Gradle project location: `android/twa` (kept خارج جذر المشروع لتفادي تعارض مجلد `app` مع مسارات Next.js)
+- Manifest source: `https://huroof-abdo.vercel.app/site.webmanifest`
+- Android guide: `android/README.md`
+- Asset links generator: `scripts/generate-assetlinks.mjs`
+- Generated association file path: `public/.well-known/assetlinks.json`
+
+Required environment variables for asset links generation:
+
+- `ANDROID_PACKAGE_NAME`
+- `ANDROID_SHA256_FINGERPRINT`
+
+## User Distribution Surface
+
+- Public install page: `https://huroof-abdo.vercel.app/install`
+- Official binary distribution: `https://github.com/KNIGHTABDO/huroof-ABDO/releases`
+- Android launcher/app display name is configured as: `حروف مع عبدو`

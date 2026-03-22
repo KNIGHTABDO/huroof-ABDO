@@ -11,7 +11,7 @@
 [![PeerJS](https://img.shields.io/badge/PeerJS-WebRTC-blue.svg)](https://peerjs.com/)
 [![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black.svg?logo=vercel)](https://huroof-abdo.vercel.app/)
 
-[🎮 العب الآن (Play Now)](https://huroof-abdo.vercel.app/) • [🤝 المساهمة (Contributing)](#-المساهمة-contributing) • [📋 سجل التغييرات (Changelog)](#-الروابط-المهمة-important-links)
+[🎮 العب الآن (Play Now)](https://huroof-abdo.vercel.app/) • [📲 التثبيت والتحميل (Install)](https://huroof-abdo.vercel.app/install) • [🤝 المساهمة (Contributing)](#-المساهمة-contributing) • [📋 سجل التغييرات (Changelog)](#-الروابط-المهمة-important-links)
 
 </div>
 
@@ -108,6 +108,43 @@ npm run test:coverage
 للتفاصيل الفنية حول الواجهات، طبقات الاتصال، وإعدادات التطوير، راجع:
 
 - [INFRASTRUCTURE.md](INFRASTRUCTURE.md)
+- [Android Build Guide](android/README.md)
+
+## 🤖 Android APK / AAB
+
+يمكنك إصدار نسخة Android من نفس هذا المشروع (بدون كتابة تطبيق ثاني) عبر TWA:
+
+> ملاحظة: ملفات مشروع Android (Gradle/TWA) معزولة داخل `android/twa` لتجنب أي تعارض مسارات مع Next.js.
+
+```bash
+npm run android:twa:init
+npm run android:twa:build
+```
+
+ولإنشاء ملف الربط الرسمي بين Android والتطبيق:
+
+```bash
+npm run android:assetlinks:dry
+npm run android:assetlinks
+```
+
+> دليل الخطوات الكامل موجود هنا: [android/README.md](android/README.md)
+
+## 📲 صفحة التثبيت للمستخدمين
+
+لجعل تجربة التحميل أو اللعب مباشرة واضحة للمستخدم النهائي، تم إضافة صفحة مخصصة داخل التطبيق:
+
+- [https://huroof-abdo.vercel.app/install](https://huroof-abdo.vercel.app/install)
+
+وتتضمن:
+
+- اللعب المباشر عبر الويب
+- رابط الإصدارات الرسمية على GitHub
+- توضيح الفرق بين APK و AAB للمستخدم
+
+رابط الإصدارات الرسمية:
+
+- [https://github.com/KNIGHTABDO/huroof-ABDO/releases](https://github.com/KNIGHTABDO/huroof-ABDO/releases)
 
 ## 🤝 المساهمة (Contributing)
 
@@ -116,6 +153,8 @@ npm run test:coverage
 ## 📜 الروابط المهمة (Important Links)
 
 - 🎮 [العب الآن (Play Now)](https://huroof-abdo.vercel.app/)
+- 📲 [التثبيت والتحميل (Install)](https://huroof-abdo.vercel.app/install)
+- 📦 [إصدارات GitHub (Releases)](https://github.com/KNIGHTABDO/huroof-ABDO/releases)
 - 🔒 [سياسة الخصوصية (Privacy Policy)](https://huroof-abdo.vercel.app/privacy)
 - 📋 [شروط الخدمة (Terms of Service)](https://huroof-abdo.vercel.app/terms)
 - 🔄 [سجل التغييرات (Changelog)](https://huroof-abdo.vercel.app/changelog)
