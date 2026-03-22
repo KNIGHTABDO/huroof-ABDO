@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { QRCodeSVG } from 'qrcode.react';
 import HexBoard from '../../components/HexBoard';
 import Sidebar from '../../components/Sidebar';
 import RotateOverlay from '../../components/RotateOverlay';
@@ -12,6 +13,8 @@ import {
   selectHex,
   nextRound,
   resetGame,
+  registerBuzzer,
+  clearBuzzer,
 } from '../../lib/gameState';
 import {
   createGame,
@@ -38,6 +41,8 @@ function GameContent() {
   const [myTeam, setMyTeam] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+  const [copySuccess, setCopySuccess] = useState(false);
+  const [showQR, setShowQR] = useState(false);
 
   const gameStateRef = useRef(null);
 
@@ -62,10 +67,11 @@ function GameContent() {
               }
             },
             (data, conn) => {
+              const currentState = gameStateRef.current;
+              if (!currentState) return;
+
               if (data.type === 'HEX_CLICK') {
-                const currentState = gameStateRef.current;
-                if (currentState && currentState.phase === 'selecting') {
-                  // Only allow the controlling team to select
+                if (currentState.phase === 'selecting') {
                   const playerInfo = getPlayers().find(p => p.id === conn.peer);
                   if (playerInfo && playerInfo.team === currentState.controllingTeam) {
                     const newState = selectHex(currentState, data.payload.hexId);
@@ -73,6 +79,12 @@ function GameContent() {
                     broadcastState(newState);
                   }
                 }
+              } else if (data.type === 'BUZZ') {
+                const playerInfo = getPlayers().find(p => p.id === conn.peer) || { team: 'orange', name: 'لاعب سريع' };
+                // alert(`Host received buzz from ${playerInfo.name}!`); // Uncomment for more debug if needed
+                const newState = registerBuzzer(currentState, playerInfo.team, playerInfo.name);
+                setGameState(newState);
+                broadcastState(newState);
               }
             },
             (err) => setError('حدث خطأ في الاتصال: ' + err.message)
@@ -141,6 +153,17 @@ function GameContent() {
     broadcastState(newState);
   }, [role, gameState]);
 
+  const handleClearBuzzer = useCallback(() => {
+    if (role !== 'host' || !gameState) return;
+    const newState = clearBuzzer(gameState);
+    setGameState(newState);
+    broadcastState(newState);
+  }, [role, gameState]);
+
+  const handleBuzz = useCallback(() => {
+    sendAction({ type: 'BUZZ' });
+  }, []);
+
   const handleResetGame = useCallback(() => {
     if (role !== 'host') return;
     const newState = resetGame();
@@ -156,6 +179,42 @@ function GameContent() {
       broadcastState(gameStateRef.current);
     }
   }, [role]);
+
+  const handleCopyRoomCode = useCallback(() => {
+    if (!roomCode) return;
+    
+    if (navigator.clipboard && window.isSecureContext) {
+      // Modern secure context (HTTPS or localhost)
+      navigator.clipboard.writeText(roomCode).then(() => {
+        setCopySuccess(true);
+        setTimeout(() => setCopySuccess(false), 2000);
+      }).catch(err => {
+        console.error('Failed to copy: ', err);
+      });
+    } else {
+      // Fallback for non-HTTPS local network (e.g. 192.168.x.x)
+      try {
+        const textArea = document.createElement("textarea");
+        textArea.value = roomCode;
+        // Move element out of view completely
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        textArea.style.top = "-999999px";
+        document.body.appendChild(textArea);
+        
+        // Select and copy
+        textArea.focus();
+        textArea.select();
+        document.execCommand('copy');
+        
+        textArea.remove();
+        setCopySuccess(true);
+        setTimeout(() => setCopySuccess(false), 2000);
+      } catch (err) {
+        console.error('Fallback copy failed: ', err);
+      }
+    }
+  }, [roomCode]);
 
   if (loading) {
     return (
@@ -197,10 +256,51 @@ function GameContent() {
           </div>
           {/* Room code + player count overlay */}
           {role === 'host' && roomCode && (
-            <div className="board-info-bar">
-              <span className="room-code-pill">كود الغرفة: <strong>{roomCode}</strong></span>
-              <span className="player-count-pill">👥 {players.length} لاعب</span>
-            </div>
+            <>
+              <div className="board-info-bar">
+                <span 
+                  className="room-code-pill" 
+                  onClick={handleCopyRoomCode}
+                  title="اضغط لنسخ الكود"
+                  style={{ cursor: 'pointer', userSelect: 'none' }}
+                >
+                  {!copySuccess ? (
+                    <>كود الغرفة: <strong>{roomCode}</strong> <span style={{fontSize: '1em', marginRight: '6px', opacity: 0.8}}>📋</span></>
+                  ) : (
+                    <strong>تم النسخ! ✓</strong>
+                  )}
+                </span>
+                <span 
+                  className="qr-code-pill" 
+                  onClick={() => setShowQR(true)}
+                  title="عرض QR Code"
+                >
+                  📱 QR
+                </span>
+                <span className="player-count-pill">👥 {players.length} لاعب</span>
+              </div>
+
+              {/* QR Code Modal */}
+              {showQR && (
+                <div className="qr-modal-overlay" onClick={() => setShowQR(false)}>
+                  <div className="qr-modal" onClick={(e) => e.stopPropagation()}>
+                    <button className="qr-modal-close" onClick={() => setShowQR(false)}>✕</button>
+                    <h3 className="qr-modal-title">امسح الكود للانضمام</h3>
+                    <div className="qr-code-wrapper">
+                      <QRCodeSVG
+                        value={typeof window !== 'undefined' ? `${window.location.origin}/?join=${roomCode}` : roomCode}
+                        size={200}
+                        bgColor="#ffffff"
+                        fgColor="#2d1b4e"
+                        level="H"
+                        includeMargin={true}
+                      />
+                    </div>
+                    <p className="qr-modal-code">كود الغرفة: <strong>{roomCode}</strong></p>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
 
@@ -208,17 +308,20 @@ function GameContent() {
         <Sidebar
           currentRound={gameState.currentRound}
           scores={gameState.scores}
-          activeHexLetter={activeHex ? activeHex.letter : ''}
+          activeHexLetter={gameState.hexagons.find(h => h.id === gameState.activeHexId)?.letter}
           currentQuestion={gameState.currentQuestion}
           phase={gameState.phase}
           isHost={role === 'host'}
           controllingTeam={gameState.controllingTeam}
+          buzzerInfo={gameState.buzzerInfo}
           onAssignPoint={handleAssignPoint}
           onNextRound={handleNextRound}
           onResetGame={handleResetGame}
+          onSwitchTeam={handleSwitchTeam}
+          onClearBuzzer={handleClearBuzzer}
+          onBuzz={handleBuzz}
           players={players}
           myTeam={myTeam}
-          onSwitchTeam={handleSwitchTeam}
         />
       </div>
     </div>

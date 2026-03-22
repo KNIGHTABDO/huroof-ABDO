@@ -14,12 +14,15 @@ export default function Sidebar({
   phase,
   isHost,
   controllingTeam,
+  buzzerInfo,
   onAssignPoint,
   onNextRound,
   onResetGame,
   players = [],
   myTeam = null,
   onSwitchTeam,
+  onClearBuzzer,
+  onBuzz,
 }) {
   const [showOptions, setShowOptions] = useState(false);
   const roundName = ROUND_NAMES[currentRound] || `الجولة ${currentRound}`;
@@ -103,9 +106,38 @@ export default function Sidebar({
       <div className="question-area">
         {phase === 'questioning' && currentQuestion && (
           <>
-            <p className="question-text">{currentQuestion.question}</p>
-            {isHost && (
-              <p className="question-answer">الإجابة: {currentQuestion.answer}</p>
+            {isHost ? (
+              <>
+                <p className="question-text">{currentQuestion.question}</p>
+                <p className="question-answer">الإجابة: {currentQuestion.answer}</p>
+                {buzzerInfo && (
+                  <div className={`buzzer-alert buzzer-alert-${buzzerInfo.team}`}>
+                    <div className="buzzer-alert-title">🔔 جرس للإجابة!</div>
+                    <div className="buzzer-alert-text">الفريق {buzzerInfo.team === 'orange' ? 'البرتقالي 🟠' : 'الأخضر 🟢'} </div>
+                    <div className="buzzer-alert-name">({buzzerInfo.playerName})</div>
+                    <button className="clear-buzzer-btn" onClick={onClearBuzzer}>
+                      إلغاء الجرس ❌
+                    </button>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="player-buzzer-area">
+                <p className="question-hidden-text">🎙️ المضيف يقرأ السؤال الآن...</p>
+                {!buzzerInfo ? (
+                  <button className="buzzer-btn" onClick={onBuzz} disabled={!myTeam}>
+                    أنا أعرف! 🔔
+                  </button>
+                ) : (
+                  <div className={`buzzer-status buzzer-status-${buzzerInfo.team === myTeam ? 'mine' : 'other'}`}>
+                    <div className="buzzer-status-icon">{buzzerInfo.team === myTeam ? '✅' : '⏳'}</div>
+                    <div className="buzzer-status-text">
+                      {buzzerInfo.team === myTeam ? 'فريقك قرع الجرس!' : 'الفريق الآخر قرع الجرس!'}
+                    </div>
+                    <div className="buzzer-status-name">اللاعب: {buzzerInfo.playerName}</div>
+                  </div>
+                )}
+              </div>
             )}
           </>
         )}

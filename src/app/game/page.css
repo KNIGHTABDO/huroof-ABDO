@@ -1,6 +1,7 @@
 .game-page {
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
 }
 
@@ -58,6 +59,7 @@
 .game-loading {
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -95,4 +97,112 @@
 
 .back-btn:hover {
   background: #5A3590;
+}
+
+/* QR Code Pill */
+.qr-code-pill {
+  background: rgba(107, 63, 160, 0.85);
+  backdrop-filter: blur(8px);
+  color: #FFF;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.qr-code-pill:hover {
+  background: rgba(130, 80, 190, 0.95);
+  transform: scale(1.05);
+}
+
+/* QR Modal */
+.qr-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: qrFadeIn 0.2s ease;
+}
+
+@keyframes qrFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.qr-modal {
+  background: linear-gradient(135deg, rgba(45, 27, 78, 0.95), rgba(80, 50, 130, 0.95));
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 24px;
+  padding: 32px 36px;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  animation: qrSlideUp 0.25s ease;
+  max-width: 320px;
+  width: 90%;
+}
+
+@keyframes qrSlideUp {
+  from { opacity: 0; transform: translateY(20px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.qr-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #FFF;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.qr-modal-close:hover {
+  background: rgba(255, 100, 100, 0.3);
+}
+
+.qr-modal-title {
+  color: #FFF;
+  font-family: 'Cairo', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0 0 18px 0;
+}
+
+.qr-code-wrapper {
+  background: #FFF;
+  border-radius: 16px;
+  padding: 12px;
+  display: inline-block;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.qr-modal-code {
+  color: rgba(255, 255, 255, 0.85);
+  font-family: 'Cairo', sans-serif;
+  font-size: 1rem;
+  margin: 16px 0 0 0;
+  letter-spacing: 2px;
+}
+
+.qr-modal-code strong {
+  color: #FFD700;
+  font-size: 1.2rem;
 }

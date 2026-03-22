@@ -3,10 +3,10 @@
   "short_name": "حروف",
   "description": "لعبة الحروف العربية التفاعلية - تحدي الفرق في الوقت الحقيقي",
   "start_url": "/",
-  "display": "standalone",
+  "display": "fullscreen",
   "background_color": "#1a0533",
   "theme_color": "#6B3FA0",
-  "orientation": "portrait",
+  "orientation": "landscape",
   "lang": "ar",
   "dir": "rtl",
   "icons": [

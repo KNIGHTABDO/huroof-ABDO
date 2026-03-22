@@ -47,14 +47,65 @@ export function setPlayerTeam(playerId, team) {
   }
 }
 
+let heartbeatInterval = null; // Keep-alive interval for host
+
 /**
  * HOST: Create a game room.
+ * Includes auto-reconnect to signaling server when disconnected (idle/background tabs).
  */
 export async function createGame(onPlayerJoin, onPlayerAction, onError) {
   const Peer = await getPeer();
   const roomCode = generateRoomCode();
   const peerId = `huroof-${roomCode}`;
   playerMap.clear();
+
+  function setupConnectionHandler(conn) {
+    console.log('Player connected:', conn.peer);
+    connections.push(conn);
+
+    conn.on('open', () => {
+      // Wait for player to send their info
+    });
+
+    conn.on('data', (data) => {
+      if (data.type === 'PLAYER_JOIN') {
+        // Player sent their name — register them
+        const playerId = conn.peer;
+        
+        let team;
+        if (playerMap.has(playerId)) {
+          // Rejoining player — give them their original team back!
+          team = playerMap.get(playerId).team;
+          console.log(`Player ${data.payload.name} reconnected to team ${team}`);
+        } else {
+          // New player — auto-assign team: alternate between orange and green
+          const orangeCount = Array.from(playerMap.values()).filter(p => p.team === 'orange').length;
+          const greenCount = Array.from(playerMap.values()).filter(p => p.team === 'green').length;
+          team = orangeCount <= greenCount ? 'orange' : 'green';
+        }
+
+        playerMap.set(playerId, {
+          id: playerId,
+          name: data.payload.name,
+          team: team,
+        });
+
+        // Send the player their team assignment
+        conn.send({ type: 'TEAM_ASSIGNED', payload: { team, playerId } });
+
+        if (onPlayerJoin) onPlayerJoin(conn, { name: data.payload.name, team, id: playerId });
+      } else {
+        if (onPlayerAction) onPlayerAction(data, conn);
+      }
+    });
+
+    conn.on('close', () => {
+      // We DON'T delete from playerMap here so they keep their team if they auto-reconnect
+      connections = connections.filter(c => c !== conn);
+      // Notify host about player leaving
+      if (onPlayerJoin) onPlayerJoin(null, null, 'leave');
+    });
+  }
 
   return new Promise((resolve, reject) => {
     peerInstance = new Peer(peerId, { debug: 1 });
@@ -64,48 +115,37 @@ export async function createGame(onPlayerJoin, onPlayerAction, onError) {
       resolve({ roomCode, peer: peerInstance });
     });
 
-    peerInstance.on('connection', (conn) => {
-      console.log('Player connected:', conn.peer);
-      connections.push(conn);
+    peerInstance.on('connection', setupConnectionHandler);
 
-      conn.on('open', () => {
-        // Wait for player to send their info
-      });
-
-      conn.on('data', (data) => {
-        if (data.type === 'PLAYER_JOIN') {
-          // Player sent their name — register them
-          const playerId = conn.peer;
-          // Auto-assign team: alternate between orange and green
-          const orangeCount = Array.from(playerMap.values()).filter(p => p.team === 'orange').length;
-          const greenCount = Array.from(playerMap.values()).filter(p => p.team === 'green').length;
-          const team = orangeCount <= greenCount ? 'orange' : 'green';
-
-          playerMap.set(playerId, {
-            id: playerId,
-            name: data.payload.name,
-            team: team,
-          });
-
-          // Send the player their team assignment
-          conn.send({ type: 'TEAM_ASSIGNED', payload: { team, playerId } });
-
-          if (onPlayerJoin) onPlayerJoin(conn, { name: data.payload.name, team, id: playerId });
-        } else {
-          if (onPlayerAction) onPlayerAction(data, conn);
+    // Auto-reconnect when disconnected from signaling server
+    peerInstance.on('disconnected', () => {
+      console.warn('Host disconnected from signaling server, attempting reconnect...');
+      if (peerInstance && !peerInstance.destroyed) {
+        try {
+          peerInstance.reconnect();
+        } catch (e) {
+          console.error('Reconnect failed:', e);
         }
-      });
-
-      conn.on('close', () => {
-        playerMap.delete(conn.peer);
-        connections = connections.filter(c => c !== conn);
-        // Notify host about player leaving
-        if (onPlayerJoin) onPlayerJoin(null, null, 'leave');
-      });
+      }
     });
+
+    // Heartbeat: periodically check if still connected to signaling server
+    if (heartbeatInterval) clearInterval(heartbeatInterval);
+    heartbeatInterval = setInterval(() => {
+      if (peerInstance && !peerInstance.destroyed && peerInstance.disconnected) {
+        console.warn('Heartbeat: peer disconnected, reconnecting...');
+        try {
+          peerInstance.reconnect();
+        } catch (e) {
+          console.error('Heartbeat reconnect failed:', e);
+        }
+      }
+    }, 15000); // Check every 15 seconds
 
     peerInstance.on('error', (err) => {
       console.error('Peer error:', err);
+      // If it's a "peer-unavailable" type, don't crash — just log it
+      if (err.type === 'peer-unavailable') return;
       if (onError) onError(err);
       reject(err);
     });
@@ -151,52 +191,138 @@ export function getPlayerCount() {
 
 /**
  * PLAYER: Join a game room by code, sending player name.
+ * Includes retry logic for more resilient connections (e.g. from QR scans).
  */
 export async function joinGame(roomCode, playerName, onStateUpdate, onTeamAssigned, onError) {
   const Peer = await getPeer();
-  const playerId = `huroof-player-${Math.random().toString(36).substr(2, 9)}`;
+  const maxRetries = 3;
+  let attempt = 0;
 
-  return new Promise((resolve, reject) => {
-    peerInstance = new Peer(playerId, { debug: 1 });
+  async function tryConnect() {
+    attempt++;
+    const playerId = `huroof-player-${Math.random().toString(36).substr(2, 9)}`;
 
-    peerInstance.on('open', () => {
-      const hostPeerId = `huroof-${roomCode}`;
-      hostConnection = peerInstance.connect(hostPeerId, { reliable: true });
+    return new Promise((resolve, reject) => {
+      // Destroy any existing instance from a previous attempt
+      if (peerInstance) {
+        peerInstance.destroy();
+        peerInstance = null;
+      }
 
-      hostConnection.on('open', () => {
-        console.log('Connected to host!');
-        // Send our name to the host
-        hostConnection.send({ type: 'PLAYER_JOIN', payload: { name: playerName } });
-        resolve({ connection: hostConnection });
+      peerInstance = new Peer(playerId, { debug: 1 });
+
+      const connectionTimeout = setTimeout(() => {
+        console.warn(`Join attempt ${attempt} timed out`);
+        if (peerInstance) peerInstance.destroy();
+        reject(new Error('انتهت مهلة الاتصال'));
+      }, 10000); // 10s timeout per attempt
+
+      peerInstance.on('open', () => {
+        const hostPeerId = `huroof-${roomCode}`;
+        hostConnection = peerInstance.connect(hostPeerId, { reliable: true });
+
+        hostConnection.on('open', () => {
+          clearTimeout(connectionTimeout);
+          console.log('Connected to host!');
+          // Send our name to the host
+          hostConnection.send({ type: 'PLAYER_JOIN', payload: { name: playerName } });
+          resolve({ connection: hostConnection });
+        });
+
+        hostConnection.on('data', (data) => {
+          if (data.type === 'STATE_UPDATE' && onStateUpdate) {
+            onStateUpdate(data.payload, data.yourTeam, data.players);
+          }
+          if (data.type === 'TEAM_ASSIGNED' && onTeamAssigned) {
+            onTeamAssigned(data.payload.team);
+          }
+        });
+
+        hostConnection.on('close', () => {
+          console.warn('Disconnected from host connection. Will auto-reconnect...');
+          hostConnection = null;
+        });
+
+        hostConnection.on('error', (err) => {
+          clearTimeout(connectionTimeout);
+          console.error('Connection error:', err);
+          reject(err);
+        });
       });
 
-      hostConnection.on('data', (data) => {
-        if (data.type === 'STATE_UPDATE' && onStateUpdate) {
-          onStateUpdate(data.payload, data.yourTeam, data.players);
+      peerInstance.on('disconnected', () => {
+        console.warn('Player disconnected from signaling server. Reconnecting...');
+        if (peerInstance && !peerInstance.destroyed) {
+          try {
+            peerInstance.reconnect();
+          } catch (e) {
+            console.error('Player reconnect failed', e);
+          }
         }
-        if (data.type === 'TEAM_ASSIGNED' && onTeamAssigned) {
-          onTeamAssigned(data.payload.team);
+      });
+
+      peerInstance.on('error', (err) => {
+        clearTimeout(connectionTimeout);
+        if (err.type === 'peer-unavailable') {
+          // The host might be temporarily disconnected, do not crash
+          console.warn('Host unavailable currently...');
+          reject(err);
+          return;
         }
-      });
-
-      hostConnection.on('close', () => {
-        console.log('Disconnected from host');
-        hostConnection = null;
-      });
-
-      hostConnection.on('error', (err) => {
-        console.error('Connection error:', err);
-        if (onError) onError(err);
+        console.error(`Peer error (attempt ${attempt}):`, err);
         reject(err);
       });
     });
+  }
 
-    peerInstance.on('error', (err) => {
-      console.error('Peer error:', err);
-      if (onError) onError(err);
-      reject(err);
-    });
-  });
+  // Setup reliable auto-reconnector loop for players that drop
+  if (window.playerReconnectInterval) clearInterval(window.playerReconnectInterval);
+  window.playerReconnectInterval = setInterval(() => {
+    if (peerInstance && !peerInstance.destroyed && !hostConnection) {
+      console.log('Player auto-reconnecting to host...');
+      const hostPeerId = `huroof-${roomCode}`;
+      try {
+        hostConnection = peerInstance.connect(hostPeerId, { reliable: true });
+        
+        hostConnection.on('open', () => {
+          console.log('Reconnected to host successfully!');
+          hostConnection.send({ type: 'PLAYER_JOIN', payload: { name: playerName } });
+        });
+
+        hostConnection.on('data', (data) => {
+          if (data.type === 'STATE_UPDATE' && onStateUpdate) {
+            onStateUpdate(data.payload, data.yourTeam, data.players);
+          }
+          if (data.type === 'TEAM_ASSIGNED' && onTeamAssigned) {
+            onTeamAssigned(data.payload.team);
+          }
+        });
+
+        hostConnection.on('close', () => {
+          hostConnection = null;
+        });
+
+      } catch (e) {
+        console.error('Auto-reconnect attempt failed', e);
+      }
+    }
+  }, 3000); // Check every 3 seconds
+
+  // Retry loop
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await tryConnect();
+    } catch (err) {
+      console.warn(`Join attempt ${attempt} failed:`, err.message);
+      if (i < maxRetries - 1) {
+        // Wait before retrying (500ms, 1500ms)
+        await new Promise(r => setTimeout(r, 500 + i * 1000));
+      } else {
+        // Final attempt failed
+        if (onError) onError(new Error('لم يتم العثور على الغرفة. تأكد أن المضيف بدأ اللعبة وأن الكود صحيح.'));
+      }
+    }
+  }
 }
 
 /**
@@ -212,6 +338,14 @@ export function sendAction(action) {
  * Disconnect and cleanup.
  */
 export function disconnect() {
+  if (heartbeatInterval) {
+    clearInterval(heartbeatInterval);
+    heartbeatInterval = null;
+  }
+  if (window.playerReconnectInterval) {
+    clearInterval(window.playerReconnectInterval);
+    window.playerReconnectInterval = null;
+  }
   connections.forEach(c => c.close());
   connections = [];
   playerMap.clear();

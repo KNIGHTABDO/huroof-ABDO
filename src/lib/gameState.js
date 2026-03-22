@@ -66,13 +66,12 @@ export function createGameState() {
     phase: 'questioning',
     currentQuestion: getRandomQuestion(hexagons[centerHexId].letter),
     winner: null,
+    buzzerInfo: null, // Track who buzzed first
   };
 }
 
-/**
- * Get neighbors of a hex in a 5x5 grid with offset odd rows.
- * Flat-top hexagons with odd rows shifted right.
- */
+// ... unchanged getNeighbors and checkWin ...
+
 export function getNeighbors(hexagons, hexId) {
   const hex = hexagons.find(h => h.id === hexId);
   if (!hex) return [];
@@ -86,10 +85,6 @@ export function getNeighbors(hexagons, hexId) {
   if (left) neighbors.push(left);
   if (right) neighbors.push(right);
 
-  // Row above and below
-  // Pointy-top hexes with odd rows shifted RIGHT:
-  //   If current row is ODD (shifted right): diagonal neighbors at col and col+1
-  //   If current row is EVEN (not shifted): diagonal neighbors at col-1 and col
   const adjCols = isOffset ? [col, col + 1] : [col - 1, col];
 
   for (const adjRow of [row - 1, row + 1]) {
@@ -104,21 +99,14 @@ export function getNeighbors(hexagons, hexId) {
   return neighbors;
 }
 
-/**
- * Check if a team has won (connected their path).
- * Orange connects LEFT (col 0) to RIGHT (col 4) — horizontal.
- * Green connects TOP (row 0) to BOTTOM (row 4) — vertical.
- */
 export function checkWin(hexagons, team) {
   const teamHexes = hexagons.filter(h => h.owner === team);
   if (teamHexes.length === 0) return false;
 
   if (team === 'green') {
-    // Green: need path from row 0 to row 4
     const startHexes = teamHexes.filter(h => h.row === 0);
     return bfsPathExists(hexagons, startHexes, h => h.row === BOARD_ROWS - 1);
   } else {
-    // Orange: need path from col 0 to col 4
     const startHexes = teamHexes.filter(h => h.col === 0);
     return bfsPathExists(hexagons, startHexes, h => h.col === BOARD_COLS - 1);
   }
@@ -161,6 +149,7 @@ export function assignPoint(state, team, hexId) {
   hex.owner = team;
   newState.controllingTeam = team;
   newState.phase = 'selecting';
+  newState.buzzerInfo = null;
 
   // Check win
   if (checkWin(newState.hexagons, team)) {
@@ -188,6 +177,7 @@ export function selectHex(state, hexId) {
   newState.activeHexId = hexId;
   newState.currentQuestion = getRandomQuestion(hex.letter);
   newState.phase = 'questioning';
+  newState.buzzerInfo = null;
 
   return newState;
 }
@@ -204,6 +194,7 @@ export function nextRound(state) {
   newState.phase = 'questioning';
   newState.currentQuestion = getRandomQuestion(newState.hexagons[getCenterHexId()].letter);
   newState.winner = null;
+  newState.buzzerInfo = null;
   return newState;
 }
 
@@ -212,6 +203,21 @@ export function nextRound(state) {
  */
 export function resetGame() {
   return createGameState();
+}
+
+export function registerBuzzer(state, team, playerName) {
+  const newState = JSON.parse(JSON.stringify(state));
+  newState.buzzerInfo = { team, playerName };
+  return newState;
+}
+
+/**
+ * Clear the current buzzer (e.g. if host ignores it or answer is wrong).
+ */
+export function clearBuzzer(state) {
+  const newState = JSON.parse(JSON.stringify(state));
+  newState.buzzerInfo = null;
+  return newState;
 }
 
 /**

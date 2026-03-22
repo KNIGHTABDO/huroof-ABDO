@@ -16,6 +16,8 @@
   flex-direction: column;
   align-items: center;
   gap: 10px;
+  max-width: 400px;
+  padding: 20px;
 }
 
 .rotate-icon {
@@ -51,4 +53,152 @@
   font-weight: 500;
   opacity: 0.8;
   margin: 0;
+}
+
+/* Fullscreen overlay */
+.fullscreen-overlay {
+  background: linear-gradient(135deg, #1a0a2e, #2d1b4e);
+}
+
+.fullscreen-icon {
+  font-size: 3.5rem;
+  animation: fullscreenPulse 2s ease-in-out infinite;
+}
+
+@keyframes fullscreenPulse {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.15); opacity: 1; }
+}
+
+.fullscreen-btn {
+  margin-top: 12px;
+  padding: 14px 36px;
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  border: none;
+  border-radius: 16px;
+  color: #1a0a2e;
+  font-size: 1.1rem;
+  font-weight: 800;
+  font-family: 'Cairo', sans-serif;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3);
+}
+
+.fullscreen-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 30px rgba(255, 215, 0, 0.5);
+}
+
+.fullscreen-btn:active {
+  transform: scale(0.97);
+}
+
+/* Install instructions (shared between iOS and Android) */
+.install-instructions {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  padding: 16px 20px;
+  width: 100%;
+}
+
+.install-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+  opacity: 0.95;
+}
+
+.install-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin: 14px 0;
+  opacity: 0.5;
+}
+
+.install-divider::before,
+.install-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.install-divider span {
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.install-steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: right;
+}
+
+.install-step-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  direction: rtl;
+}
+
+.install-step-num {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  color: #1a0a2e;
+  width: 26px;
+  height: 26px;
+  min-width: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.8rem;
+}
+
+.ios-share-icon {
+  display: inline-block;
+  background: rgba(0, 122, 255, 0.3);
+  border: 1px solid rgba(0, 122, 255, 0.5);
+  border-radius: 6px;
+  padding: 1px 5px;
+  font-size: 0.8rem;
+  margin: 0 3px;
+}
+
+.menu-icon {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  padding: 0 6px;
+  font-size: 1rem;
+  font-weight: 900;
+  margin: 0 3px;
+  letter-spacing: 1px;
+}
+
+/* Skip / dismiss button */
+.fullscreen-skip {
+  margin-top: 12px;
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+  font-family: 'Cairo', sans-serif;
+  cursor: pointer;
+  padding: 10px 24px;
+  transition: all 0.2s;
+}
+
+.fullscreen-skip:hover {
+  color: rgba(255, 255, 255, 0.9);
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.05);
 }

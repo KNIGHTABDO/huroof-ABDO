@@ -1,19 +1,30 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import './page.css';
 
 // The background is completely managed via CSS background-image now.
 
-export default function LandingPage() {
+function LandingContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const joinCode = searchParams.get('join') || '';
+
   const [showJoin, setShowJoin] = useState(false);
   const [roomCode, setRoomCode] = useState('');
   const [playerName, setPlayerName] = useState('');
   const [error, setError] = useState('');
+
+  // Auto-open join form if ?join= param is present (from QR code)
+  useEffect(() => {
+    if (joinCode) {
+      setRoomCode(joinCode.toUpperCase());
+      setShowJoin(true);
+    }
+  }, [joinCode]);
 
   const handleCreateGame = () => {
     router.push('/game?role=host');
@@ -105,5 +116,13 @@ export default function LandingPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LandingPage() {
+  return (
+    <Suspense fallback={<div style={{width:'100vw',height:'100vh',background:'#1a0a2e'}} />}>
+      <LandingContent />
+    </Suspense>
   );
 }
