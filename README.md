@@ -130,6 +130,31 @@ npm run android:assetlinks
 
 > دليل الخطوات الكامل موجود هنا: [android/README.md](android/README.md)
 
+## ⚙️ GitHub Auto Build (APK/AAB)
+
+تمت إضافة workflow تلقائي في:
+
+- `.github/workflows/android-release.yml`
+
+السلوك الحالي:
+
+- أي `push` على `main`: يبني APK/AAB ويرفعهم كـ Artifacts داخل GitHub Actions.
+- أي Tag يبدأ بـ `v` (مثل `v2.1.0`): يبني APK/AAB ثم ينشرهم تلقائياً في GitHub Releases.
+
+الأسرار المطلوبة في GitHub (Repository Settings → Secrets and variables → Actions):
+
+- `ANDROID_KEYSTORE_BASE64`
+- `ANDROID_KEYSTORE_PASSWORD`
+- `ANDROID_KEY_ALIAS`
+- `ANDROID_KEY_PASSWORD`
+
+مثال تشغيل Release تلقائي:
+
+```bash
+git tag v2.1.0
+git push origin v2.1.0
+```
+
 ## 📲 صفحة التثبيت للمستخدمين
 
 لجعل تجربة التحميل أو اللعب مباشرة واضحة للمستخدم النهائي، تم إضافة صفحة مخصصة داخل التطبيق:

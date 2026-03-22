@@ -97,6 +97,41 @@ Also verify:
 - In-app install page: `https://huroof-abdo.vercel.app/install`
 - GitHub Releases (APK/AAB distribution): `https://github.com/KNIGHTABDO/huroof-ABDO/releases`
 
+## 10) Automatic build on GitHub (CI/CD)
+
+Workflow file:
+
+- `.github/workflows/android-release.yml`
+
+What it does:
+
+- On push to `main`: builds release APK + AAB and uploads them as workflow artifacts.
+- On tag `v*`: builds release APK + AAB and publishes them to GitHub Releases automatically.
+
+Required GitHub Actions secrets:
+
+- `ANDROID_KEYSTORE_BASE64` (base64 content of your `.jks` file)
+- `ANDROID_KEYSTORE_PASSWORD`
+- `ANDROID_KEY_ALIAS`
+- `ANDROID_KEY_PASSWORD`
+
+How to create `ANDROID_KEYSTORE_BASE64` locally:
+
+```bash
+# Linux/macOS
+base64 -w 0 /path/to/huroof-release.jks
+
+# Windows PowerShell
+[Convert]::ToBase64String([IO.File]::ReadAllBytes("C:\android\keys\huroof-release.jks"))
+```
+
+Release trigger example:
+
+```bash
+git tag v2.1.0
+git push origin v2.1.0
+```
+
 ---
 
 ## Useful Scripts
