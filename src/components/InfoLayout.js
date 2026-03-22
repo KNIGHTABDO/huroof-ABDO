@@ -13,14 +13,15 @@ export default function InfoLayout({ title, subtitle, children }) {
       
       <div className="info-card">
         <header className="info-header">
-          <Link href="/">
+          <Link href="/" className="info-logo-link">
             <Image
               src="/assets/logo_transparent.png"
               alt="Logo"
               className="info-logo"
-              width={120}
-              height={60}
+              width={250}
+              height={120}
               priority
+              style={{ objectFit: 'contain' }}
             />
           </Link>
           <h1 className="info-title">{title}</h1>

@@ -52,13 +52,33 @@
 
 .info-header {
   text-align: center;
-  margin-bottom: 40px;
+  margin-bottom: 25px;
+}
+
+.info-logo-link {
+  display: block;
+  text-decoration: none;
+  margin: 0 auto 5px;
+  width: fit-content;
 }
 
 .info-logo {
-  max-width: 120px;
-  margin: 0 auto 20px;
+  max-width: 220px;
+  height: auto;
+  filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  animation: infoLogoFloat 4s ease-in-out infinite;
   display: block;
+}
+
+@keyframes infoLogoFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.info-logo-link:hover .info-logo {
+  transform: scale(1.05);
+  filter: drop-shadow(0 20px 40px rgba(0,0,0,0.5));
 }
 
 .info-title {
@@ -140,7 +160,17 @@
   display: block;
   margin-bottom: -15px;
 }
-
+@media (max-width: 500px) {
+  .info-logo {
+    max-width: 160px;
+  }
+  .info-title {
+    font-size: 1.8rem;
+  }
+  .info-card {
+    padding: 30px 20px;
+  }
+}
 .changelog-version {
   display: inline-block;
   background: rgba(107, 63, 160, 0.3);
