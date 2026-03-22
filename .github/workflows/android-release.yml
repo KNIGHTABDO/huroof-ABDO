@@ -14,6 +14,8 @@ permissions:
 jobs:
   build-android:
     runs-on: ubuntu-latest
+    env:
+      IS_TAG_RELEASE: ${{ startsWith(github.ref, 'refs/tags/v') }}
 
     defaults:
       run:
@@ -35,19 +37,35 @@ jobs:
       - name: Make Gradle wrapper executable
         run: chmod +x gradlew
 
-      - name: Create signing files from secrets
+      - name: Check signing secrets availability
+        id: signing
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
-          if [ -z "$ANDROID_KEYSTORE_BASE64" ] || [ -z "$ANDROID_KEYSTORE_PASSWORD" ] || [ -z "$ANDROID_KEY_ALIAS" ] || [ -z "$ANDROID_KEY_PASSWORD" ]; then
-            echo "Missing one or more Android signing secrets."
-            echo "Please set: ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD"
-            exit 1
+          if [ -n "$ANDROID_KEYSTORE_BASE64" ] && [ -n "$ANDROID_KEYSTORE_PASSWORD" ] && [ -n "$ANDROID_KEY_ALIAS" ] && [ -n "$ANDROID_KEY_PASSWORD" ]; then
+            echo "has_signing=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_signing=false" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Fail tag release if signing secrets are missing
+        if: env.IS_TAG_RELEASE == 'true' && steps.signing.outputs.has_signing != 'true'
+        run: |
+          echo "Tag release requires Android signing secrets, but one or more are missing."
+          echo "Please set: ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD"
+          exit 1
+
+      - name: Create signing files from secrets
+        if: steps.signing.outputs.has_signing == 'true'
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
           echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > release.jks
 
           printf "storeFile=release.jks\nstorePassword=%s\nkeyAlias=%s\nkeyPassword=%s\n" \
@@ -55,25 +73,40 @@ jobs:
             "$ANDROID_KEY_ALIAS" \
             "$ANDROID_KEY_PASSWORD" > keystore.properties
 
-      - name: Build release APK + AAB
+      - name: Build signed release APK + AAB
+        if: steps.signing.outputs.has_signing == 'true'
         run: ./gradlew assembleRelease bundleRelease
 
-      - name: Upload APK artifact
+      - name: Build debug APK (fallback when no signing secrets)
+        if: steps.signing.outputs.has_signing != 'true'
+        run: ./gradlew assembleDebug
+
+      - name: Upload release APK artifact
+        if: steps.signing.outputs.has_signing == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: android-apk-release
           path: android/twa/app/build/outputs/apk/release/*.apk
           if-no-files-found: error
 
-      - name: Upload AAB artifact
+      - name: Upload release AAB artifact
+        if: steps.signing.outputs.has_signing == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: android-aab-release
           path: android/twa/app/build/outputs/bundle/release/*.aab
           if-no-files-found: error
 
+      - name: Upload debug APK artifact
+        if: steps.signing.outputs.has_signing != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk-debug
+          path: android/twa/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+
       - name: Publish GitHub Release (tags only)
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: env.IS_TAG_RELEASE == 'true' && steps.signing.outputs.has_signing == 'true'
         uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true

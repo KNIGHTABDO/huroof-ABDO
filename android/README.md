@@ -105,8 +105,10 @@ Workflow file:
 
 What it does:
 
-- On push to `main`: builds release APK + AAB and uploads them as workflow artifacts.
-- On tag `v*`: builds release APK + AAB and publishes them to GitHub Releases automatically.
+- On push to `main`:
+  - With signing secrets: builds release APK + AAB and uploads them as artifacts.
+  - Without signing secrets: builds debug APK and uploads it as artifact (no failure).
+- On tag `v*`: requires signing secrets, builds release APK + AAB, then publishes to GitHub Releases.
 
 Required GitHub Actions secrets:
 

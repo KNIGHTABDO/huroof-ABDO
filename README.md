@@ -138,8 +138,10 @@ npm run android:assetlinks
 
 السلوك الحالي:
 
-- أي `push` على `main`: يبني APK/AAB ويرفعهم كـ Artifacts داخل GitHub Actions.
-- أي Tag يبدأ بـ `v` (مثل `v2.1.0`): يبني APK/AAB ثم ينشرهم تلقائياً في GitHub Releases.
+- أي `push` على `main`:
+  - إذا كانت secrets موجودة: يبني Release APK + AAB.
+  - إذا secrets غير موجودة: يبني Debug APK فقط (حتى لا يفشل الـ CI).
+- أي Tag يبدأ بـ `v` (مثل `v2.1.0`): يتطلب secrets، ثم يبني Release APK + AAB وينشرهم تلقائياً في GitHub Releases.
 
 الأسرار المطلوبة في GitHub (Repository Settings → Secrets and variables → Actions):
 
