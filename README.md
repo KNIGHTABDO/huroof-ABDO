@@ -31,17 +31,25 @@
 
 <img src="public/screenshots/screenshot-landing.png" alt="الصفحة الرئيسية" width="800" />
 
-### لوحة اللعبة - عرض سطح المكتب (Game Board - Desktop)
+### لوحة اللعبة (Game Board)
 
-<img src="public/screenshots/screenshot-game-desktop.png" alt="لوحة اللعبة على سطح المكتب" width="800" />
+<img src="public/screenshots/screenshot-game-desktop.png" alt="لوحة اللعبة" width="800" />
 
-### لوحة اللعبة - لوحي (Game Board - Tablet)
+### صفحة التثبيت (Install Page)
 
-<img src="public/screenshots/screenshot-game-tablet.png" alt="لوحة اللعبة على اللوحي" width="600" />
+<img src="public/screenshots/screenshot-install.png" alt="صفحة التثبيت" width="800" />
 
-### عرض الجوال (Mobile View)
+### سجل التغييرات (Changelog)
 
-<img src="public/screenshots/screenshot-landing-mobile.png" alt="عرض الجوال" width="390" />
+<img src="public/screenshots/screenshot-changelog.png" alt="سجل التغييرات" width="800" />
+
+### سياسة الخصوصية (Privacy Policy)
+
+<img src="public/screenshots/screenshot-privacy.png" alt="سياسة الخصوصية" width="800" />
+
+### شروط الخدمة (Terms of Service)
+
+<img src="public/screenshots/screenshot-terms.png" alt="شروط الخدمة" width="800" />
 
 </div>
 
