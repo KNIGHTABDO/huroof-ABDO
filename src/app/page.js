@@ -8,12 +8,15 @@ import './page.css';
 
 // The background is completely managed via CSS background-image now.
 
+import { Scanner } from '@yudiel/react-qr-scanner';
+
 function LandingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const joinCode = searchParams.get('join') || '';
 
   const [showJoin, setShowJoin] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
   const [roomCode, setRoomCode] = useState('');
   const [playerName, setPlayerName] = useState('');
   const [error, setError] = useState('');
@@ -32,14 +35,42 @@ function LandingContent() {
 
   const handleJoinGame = () => {
     if (!playerName.trim()) {
-      setError('يرجى إدخال اسمك');
+      setError('يرجى إدخال اسمك أولاً للانضمام');
       return;
     }
     if (!roomCode.trim() || roomCode.trim().length < 4) {
-      setError('يرجى إدخال كود الغرفة');
+      setError('يرجى إدخال أو مسح كود الغرفة');
       return;
     }
     router.push(`/game?role=player&room=${roomCode.trim().toUpperCase()}&name=${encodeURIComponent(playerName.trim())}`);
+  };
+
+  const handleScan = (result) => {
+    if (!result) return;
+    const text = Array.isArray(result) ? result[0]?.rawValue : result;
+    if (!text) return;
+    
+    // text looks like: http://192.168.11.../?join=ABCXYZ
+    try {
+      const parsedUrl = new URL(text);
+      const code = parsedUrl.searchParams.get('join');
+      if (code && code.length >= 4) {
+        setRoomCode(code.toUpperCase());
+        setShowScanner(false);
+      } else if (text.length === 6) {
+        // Fallback for direct 6 letter codes
+        setRoomCode(text.toUpperCase());
+        setShowScanner(false);
+      }
+    } catch {
+      // If it's not a valid URL URL() throws error, maybe it's raw 6 char code?
+      if (text.length >= 4 && text.length <= 6) {
+        setRoomCode(text.toUpperCase());
+        setShowScanner(false);
+      } else {
+        setError("لم يتم التعرف على الكود، يرجى المحاولة مرة أخرى.");
+      }
+    }
   };
 
   return (
@@ -70,30 +101,62 @@ function LandingContent() {
               <span className="btn-text">انضم للعبة</span>
               <span className="btn-desc">ادخل كود الغرفة وانضم لفريقك</span>
             </button>
+          ) : showScanner ? (
+            <div className="join-form qr-scanner-view">
+              <h3 style={{color: '#fff', fontSize: '1rem', marginBottom: '10px'}}>وجه الكاميرا لرمز الـ QR الخاص بالمضيف</h3>
+              
+              {typeof window !== 'undefined' && !window.isSecureContext ? (
+                <div style={{background: '#ff475722', color: '#ff4757', padding: '15px', borderRadius: '12px', fontSize: '0.9rem', marginBottom: '10px', textAlign: 'center', border: '1px solid #ff4757'}}>
+                  🚫 <b>الكاميرا غير متاحة</b><br/>
+                  الوصول للكاميرا يتطلب اتصال آمن (HTTPS).<br/>سيتم تفعيل هذه الميزة تلقائياً عند تشغيل اللعبة عبر رابط الإنترنت الفعلي (Vercel).<br/>(للآن، استخدم كتابة الكود يدوياً)
+                </div>
+              ) : (
+                <div style={{borderRadius: '12px', overflow: 'hidden', marginBottom: '10px', background: '#000'}}>
+                   <Scanner 
+                     onScan={(result) => handleScan(result)} 
+                     onError={(e) => {
+                       console.log("Scanner Error", e);
+                       if (e?.message?.includes("secure context")) {
+                         setError("الكاميرا تتطلب اتصالاً آمناً (HTTPS). يرجى إدخال الكود يدوياً للآن.");
+                         setShowScanner(false);
+                       }
+                     }}
+                     components={{ tracker: true, audio: false }}
+                   />
+                </div>
+              )}
+              
+              <button className="join-cancel-btn" onClick={() => setShowScanner(false)}>إلغاء المسح</button>
+            </div>
           ) : (
             <div className="join-form">
               <input
                 type="text"
                 className="name-input"
-                placeholder="اسمك..."
+                placeholder="اسمك هنا..."
                 value={playerName}
                 onChange={(e) => { setPlayerName(e.target.value); setError(''); }}
                 maxLength={20}
                 autoFocus
               />
-              <input
-                type="text"
-                className="room-input"
-                placeholder="كود الغرفة..."
-                value={roomCode}
-                onChange={(e) => { setRoomCode(e.target.value); setError(''); }}
-                maxLength={6}
-                onKeyDown={(e) => e.key === 'Enter' && handleJoinGame()}
-              />
+              <div className="room-input-group">
+                <input
+                  type="text"
+                  className="room-input"
+                  placeholder="كود الغرفة..."
+                  value={roomCode}
+                  onChange={(e) => { setRoomCode(e.target.value); setError(''); }}
+                  maxLength={6}
+                  onKeyDown={(e) => e.key === 'Enter' && handleJoinGame()}
+                />
+                <button className="scan-qr-btn" onClick={() => setShowScanner(true)} title="مسح رمز QR">
+                  📷 
+                </button>
+              </div>
               {error && <p className="join-error">{error}</p>}
               <div className="join-form-actions">
                 <button className="join-submit-btn" onClick={handleJoinGame}>
-                  انضم الآن
+                  الدخول للغرفة
                 </button>
                 <button className="join-cancel-btn" onClick={() => { setShowJoin(false); setRoomCode(''); setPlayerName(''); }}>
                   إلغاء
