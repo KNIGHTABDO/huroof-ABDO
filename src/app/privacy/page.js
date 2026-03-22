@@ -64,13 +64,17 @@ export default function PrivacyPage() {
 
       <h2>8. التثبيت ومصادر التحميل الرسمية</h2>
       <p>
-        نوفر اللعبة عبر الويب مباشرة، كما نتيح إصدارات Android الرسمية عبر صفحة الإصدارات في GitHub. ننصح بالتحميل فقط من القنوات الرسمية التالية:
+        نوفر اللعبة عبر الويب مباشرة، كما نتيح إصدارات Android الرسمية الموثوقة عبر صفحة الإصدارات في GitHub. ننصح بالتحميل فقط من القنوات الرسمية التالية:
       </p>
       <ul>
-        <li><strong>اللعب المباشر:</strong> https://huroof-abdo.vercel.app/</li>
-        <li><strong>صفحة التثبيت:</strong> https://huroof-abdo.vercel.app/install</li>
-        <li><strong>إصدارات GitHub الرسمية:</strong> https://github.com/KNIGHTABDO/huroof-ABDO/releases</li>
+        <li><strong>اللعب المباشر (الويب):</strong> https://huroof-abdo.vercel.app/</li>
+        <li><strong>صفحة التثبيت والتحميل:</strong> https://huroof-abdo.vercel.app/install</li>
+        <li><strong>إصدارات GitHub الرسمية (APK/AAB):</strong> https://github.com/KNIGHTABDO/huroof-ABDO/releases</li>
+        <li><strong>التحميل المباشر للـ APK (v2.1.1):</strong> https://github.com/KNIGHTABDO/huroof-ABDO/releases/download/v2.1.1/app-release.apk</li>
       </ul>
+      <p>
+        كلا الإصدارين (الويب و Android) يستخدمان نفس البنية الخلفية والخدمات، مما يعني أن نفس سياسة الخصوصية تنطبق على كليهما.
+      </p>
       <p>
         قد تخضع ملفات التثبيت (APK/AAB) لمعلومات تقنية مرتبطة بالتوقيع الرقمي والتحقق من سلامة الحزمة على مستوى Android، وهذه العمليات تتم على مستوى النظام والمتجر/المثبت ولا تعني جمع بيانات شخصية إضافية من طرفنا خارج ما هو مذكور أعلاه.
       </p>

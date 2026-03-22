@@ -55,4 +55,31 @@ Please include in your PR description:
 - Whether tests were updated/added
 - Any docs updates (README, policy pages, changelog)
 
+## الإصدارات (Releases)
+
+### عملية الإفراج المؤتمتة
+
+عملية الإفراج مؤتمتة بالكامل عبر GitHub Actions:
+
+1. **بعد الدفع إلى `main`:**
+   - الفحص الكامل (ESLint + Jest)
+   - بناء Next.js للويب
+   - بناء Android Debug APK (إذا كانت الأسرار موجودة)
+
+2. **عند دفع tag يبدأ بـ `v` (مثل `v2.1.1`):**
+   - لا مجال كل الخطوات أعلاه
+   - **بناء APK/AAB موقع** (باستخدام GitHub Secrets)
+   - **نشر GitHub Release** مع الملفات الرسمية
+
+### الأسرار المطلوبة للإفراج الموقع
+
+أضف في Settings → Secrets and variables → Actions:
+
+- `ANDROID_KEYSTORE_BASE64` — keystore مشفر بـ base64
+- `ANDROID_KEYSTORE_PASSWORD` — كلمة مرور keystore
+- `ANDROID_KEY_ALIAS` — اسم alias للمفتاح
+- `ANDROID_KEY_PASSWORD` — كلمة مرور المفتاح
+
+اطلع على `ANDROID_RELEASE_FULL_GUIDE.md` للتفاصيل الكاملة.
+
 Thank you for your time and expertise!

@@ -14,6 +14,20 @@ export default function ChangelogPage() {
       <div className="changelog-item">
         <span className="info-date">22 مارس 2026</span>
         <h3>
+          <span className="changelog-version">v2.1.1</span>
+          تطبيق Android وتوزيع الإفراجات
+        </h3>
+        <ul>
+          <li><strong>جديد:</strong> تطبيق Android أصلي متاح الآن! تحميل مباشر موثوق وموقع وآمن من GitHub Releases.</li>
+          <li><strong>جديد:</strong> بناء وتوقيع آلي للـ APK والإصدارات عبر GitHub Actions.</li>
+          <li><strong>تحسين:</strong> تحديث صفحة التثبيت والتحميل لتدعم اكتشاف نوع الجهاز (iOS/ويب vs أندرويد).</li>
+          <li><strong>تحسين:</strong> تحديث صفحات الخصوصية والشروط لتتضمن سياسات التوزيع وإصدارات تطبيق الأندرويد.</li>
+        </ul>
+      </div>
+
+      <div className="changelog-item">
+        <span className="info-date">22 مارس 2026</span>
+        <h3>
           <span className="changelog-version">v1.2.2</span>
           تحديثات التثبيت والتوزيع على Android
         </h3>

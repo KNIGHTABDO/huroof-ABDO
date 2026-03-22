@@ -65,8 +65,54 @@ Required environment variables for asset links generation:
 - `ANDROID_PACKAGE_NAME`
 - `ANDROID_SHA256_FINGERPRINT`
 
-## User Distribution Surface
+## CI/CD Release Workflow
 
-- Public install page: `https://huroof-abdo.vercel.app/install`
-- Official binary distribution: `https://github.com/KNIGHTABDO/huroof-ABDO/releases`
-- Android launcher/app display name is configured as: `حروف مع عبدو`
+### أدوات البناء
+
+- **Bubblewrap:** توليد مشروع Android من PWA
+- **Gradle:** نظام بناء Android (v8.11.1)
+- **JDK:** Java Development Kit 17
+- **GitHub Actions:** بناء وإفراج مؤتمات
+
+### سير العمل (.github/workflows/android-release.yml)
+
+**المشغلات:**
+
+1. `push` على `main`: بناء واختبار (ويب + Android debug)
+2. `push` على tag `v*`: بناء موقع + نشر Release
+
+**خطوات الإفراج:**
+
+1. فحص الشيفرة والاختبارات (ESLint, Jest, Next.js build)
+2. إعداد JDK 17 وAndroid SDK
+3. بناء ملفات التوقيع من GitHub Secrets
+4. تجميع APK/AAB موقع
+5. رفع الملفات إلى GitHub Releases
+6. نشر صفحة Release رسمية
+
+**الملفات الناتجة:**
+
+- `android/twa/app/build/outputs/apk/release/app-release.apk`
+- `android/twa/app/build/outputs/bundle/release/app-release.aab`
+
+### إدارة الأسرار
+
+**GitHub Secrets المطلوبة:**
+
+- `ANDROID_KEYSTORE_BASE64`: keystore مشفر بـ base64
+- `ANDROID_KEYSTORE_PASSWORD`: كلمة مرور keystore
+- `ANDROID_KEY_ALIAS`: private key alias name
+- `ANDROID_KEY_PASSWORD`: كلمة مرور المفتاح
+
+**الأمان:**
+
+- لا تُخزّن الأسرار في git
+- التشفير الكامل أثناء النقل والتخزين على GitHub
+- جلسات ephemeral في GitHub Actions
+
+## سطح الأزرار المرئية
+
+- الصفحة العامة للتثبيت: https://huroof-abdo.vercel.app/install
+- التوزيع الرسمي (GitHub Releases): https://github.com/KNIGHTABDO/huroof-ABDO/releases
+- التحميل المباشر للـ APK (v2.1.1): https://github.com/KNIGHTABDO/huroof-ABDO/releases/download/v2.1.1/app-release.apk
+- اسم التطبيق الرسمي: **حروف مع عبدو**
