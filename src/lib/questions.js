@@ -558,4 +558,92 @@ export function getAllQuestions() {
   return QUESTIONS;
 }
 
+// ─── Seen-Questions Management Helpers ────────────────────────────────────────
+// These helpers read/write the exact same seen_q_* localStorage keys used by
+// getRandomQuestion(). They are safe to call from the management UI and will
+// never break the anti-repetition logic.
+
+/**
+ * Get the full map of seen IDs for all letters.
+ * Returns { [letter]: string[] } — only includes letters that have data.
+ */
+export function getAllSeenData() {
+  if (typeof window === 'undefined') return {};
+  const result = {};
+  for (const q of QUESTIONS_WITH_IDS) {
+    if (result[q.letter] !== undefined) continue; // already read
+    try {
+      const raw = localStorage.getItem(`seen_q_${q.letter}`);
+      if (raw) {
+        const ids = JSON.parse(raw);
+        if (Array.isArray(ids) && ids.length > 0) {
+          result[q.letter] = ids;
+        }
+      }
+    } catch (e) {
+      // ignore corrupt entries
+    }
+  }
+  return result;
+}
+
+/**
+ * Get the full question objects (with id) for all seen IDs of a letter.
+ */
+export function getSeenQuestionsWithDetails(letter) {
+  const ids = getSeenIds(letter);
+  return QUESTIONS_WITH_IDS.filter(q => q.letter === letter && ids.includes(q.id));
+}
+
+/**
+ * Remove a single seen ID for a letter (re-activates it for future picks).
+ */
+export function removeSeenId(letter, id) {
+  if (typeof window === 'undefined') return;
+  try {
+    const seen = getSeenIds(letter);
+    const updated = seen.filter(s => s !== id);
+    if (updated.length === 0) {
+      localStorage.removeItem(`seen_q_${letter}`);
+    } else {
+      localStorage.setItem(`seen_q_${letter}`, JSON.stringify(updated));
+    }
+  } catch (e) {}
+}
+
+/**
+ * Overwrite the seen list for a letter (used by import/merge).
+ * Deduplicates and validates against known IDs.
+ */
+export function setSeenIds(letter, ids) {
+  if (typeof window === 'undefined') return;
+  try {
+    const validIds = QUESTIONS_WITH_IDS
+      .filter(q => q.letter === letter)
+      .map(q => q.id);
+    const safe = [...new Set(ids)].filter(id => validIds.includes(id));
+    if (safe.length === 0) {
+      localStorage.removeItem(`seen_q_${letter}`);
+    } else {
+      localStorage.setItem(`seen_q_${letter}`, JSON.stringify(safe));
+    }
+  } catch (e) {}
+}
+
+/**
+ * Get a flat list of all seen question objects across every letter.
+ */
+export function getAllSeenQuestions() {
+  if (typeof window === 'undefined') return [];
+  const seenData = getAllSeenData();
+  const result = [];
+  for (const [letter, ids] of Object.entries(seenData)) {
+    const questions = QUESTIONS_WITH_IDS.filter(
+      q => q.letter === letter && ids.includes(q.id)
+    );
+    result.push(...questions);
+  }
+  return result;
+}
+
 export default QUESTIONS;
