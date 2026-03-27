@@ -98,7 +98,11 @@ function GameContent() {
           setLoading(false);
         } else {
           const validRoom = normalizeRoomCode(roomParam);
-          const validName = normalizePlayerName(nameParam);
+          let validName = normalizePlayerName(nameParam);
+          
+          if (!validName && role === 'spectator') {
+            validName = 'مشاهد';
+          }
 
           if (!validRoom || !validName) {
             setError('بيانات الانضمام غير صالحة. تحقق من الاسم وكود الغرفة.');
@@ -235,7 +239,7 @@ function GameContent() {
 
   const handleCopySpectatorLink = useCallback(() => {
     if (!roomCode) return;
-    const url = `${window.location.origin}/game?role=spectator&room=${roomCode}`;
+    const url = `${window.location.origin}/game?role=spectator&room=${roomCode}&name=${encodeURIComponent('مشاهد')}`;
     if (navigator.clipboard) {
       navigator.clipboard.writeText(url).then(() => {
         setCopySpectatorSuccess(true);
@@ -346,7 +350,7 @@ function GameContent() {
                     <p style={{color: '#ddd', fontSize: '0.9rem', marginBottom: '15px'}}>امسح هذا الكود بهاتفك، ثم قم ببث الشاشة (Cast/Mirror) إلى التلفاز الذكي.</p>
                     <div className="qr-code-wrapper">
                       <QRCodeSVG
-                        value={typeof window !== 'undefined' ? `${window.location.origin}/game?role=spectator&room=${roomCode}` : roomCode}
+                        value={typeof window !== 'undefined' ? `${window.location.origin}/game?role=spectator&room=${roomCode}&name=${encodeURIComponent('مشاهد')}` : roomCode}
                         size={200}
                         bgColor="#ffffff"
                         fgColor="#059669"
