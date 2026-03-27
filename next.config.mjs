@@ -2,7 +2,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const allowedDevOrigins = (process.env.DEV_ORIGINS || 'localhost,127.0.0.1,192.168.11.108')
+const allowedDevOrigins = (process.env.DEV_ORIGINS || 'localhost,127.0.0.1,192.168.11.108,172.21.176.1')
   .split(',')
   .map(origin => origin.trim())
   .filter(Boolean);

@@ -44,6 +44,8 @@ function GameContent() {
   const [loading, setLoading] = useState(true);
   const [copySuccess, setCopySuccess] = useState(false);
   const [showQR, setShowQR] = useState(false);
+  const [showTVSpectateModal, setShowTVSpectateModal] = useState(false);
+  const [copySpectatorSuccess, setCopySpectatorSuccess] = useState(false);
 
   const gameStateRef = useRef(null);
 
@@ -231,6 +233,17 @@ function GameContent() {
     }
   }, [roomCode]);
 
+  const handleCopySpectatorLink = useCallback(() => {
+    if (!roomCode) return;
+    const url = `${window.location.origin}/game?role=spectator&room=${roomCode}`;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(() => {
+        setCopySpectatorSuccess(true);
+        setTimeout(() => setCopySpectatorSuccess(false), 2000);
+      });
+    }
+  }, [roomCode]);
+
   if (loading) {
     return (
       <div className="game-loading">
@@ -293,6 +306,14 @@ function GameContent() {
                   📱 QR
                 </span>
                 <span className="player-count-pill">👥 {players.length} لاعب</span>
+                <span 
+                  className="tv-spectate-pill" 
+                  onClick={() => setShowTVSpectateModal(true)}
+                  title="عرض على التلفاز"
+                  style={{ cursor: 'pointer', background: 'linear-gradient(45deg, #10b981, #059669)', color: '#fff', padding: '6px 14px', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 700, whiteSpace: 'nowrap', userSelect: 'none', transition: 'background 0.2s, transform 0.15s' }}
+                >
+                  📺 مشاهدة على التلفاز
+                </span>
               </div>
 
               {/* QR Code Modal */}
@@ -312,6 +333,33 @@ function GameContent() {
                       />
                     </div>
                     <p className="qr-modal-code">كود الغرفة: <strong>{roomCode}</strong></p>
+                  </div>
+                </div>
+              )}
+
+              {/* TV Spectate Modal */}
+              {showTVSpectateModal && (
+                <div className="qr-modal-overlay" onClick={() => setShowTVSpectateModal(false)}>
+                  <div className="qr-modal" onClick={(e) => e.stopPropagation()}>
+                    <button className="qr-modal-close" onClick={() => setShowTVSpectateModal(false)}>✕</button>
+                    <h3 className="qr-modal-title">مشاهدة على التلفاز</h3>
+                    <p style={{color: '#ddd', fontSize: '0.9rem', marginBottom: '15px'}}>امسح هذا الكود بهاتفك، ثم قم ببث الشاشة (Cast/Mirror) إلى التلفاز الذكي.</p>
+                    <div className="qr-code-wrapper">
+                      <QRCodeSVG
+                        value={typeof window !== 'undefined' ? `${window.location.origin}/game?role=spectator&room=${roomCode}` : roomCode}
+                        size={200}
+                        bgColor="#ffffff"
+                        fgColor="#059669"
+                        level="H"
+                        includeMargin={true}
+                      />
+                    </div>
+                    <button 
+                      onClick={handleCopySpectatorLink}
+                      style={{marginTop: '15px', padding: '10px 20px', background: '#10b981', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '1rem', cursor: 'pointer', fontWeight: 'bold'}}
+                    >
+                      {copySpectatorSuccess ? 'تم النسخ! ✓' : '📋 نسخ رابط المشاهدة'}
+                    </button>
                   </div>
                 </div>
               )}
