@@ -31,17 +31,25 @@
 
 <img src="public/screenshots/screenshot-landing.png" alt="الصفحة الرئيسية" width="800" />
 
-### لوحة اللعبة - عرض سطح المكتب (Game Board - Desktop)
+### لوحة اللعبة (Game Board)
 
-<img src="public/screenshots/screenshot-game-desktop.png" alt="لوحة اللعبة على سطح المكتب" width="800" />
+<img src="public/screenshots/screenshot-game-desktop.png" alt="لوحة اللعبة" width="800" />
 
-### لوحة اللعبة - لوحي (Game Board - Tablet)
+### صفحة التثبيت (Install Page)
 
-<img src="public/screenshots/screenshot-game-tablet.png" alt="لوحة اللعبة على اللوحي" width="600" />
+<img src="public/screenshots/screenshot-install.png" alt="صفحة التثبيت" width="800" />
 
-### عرض الجوال (Mobile View)
+### سجل التغييرات (Changelog)
 
-<img src="public/screenshots/screenshot-landing-mobile.png" alt="عرض الجوال" width="390" />
+<img src="public/screenshots/screenshot-changelog.png" alt="سجل التغييرات" width="800" />
+
+### سياسة الخصوصية (Privacy Policy)
+
+<img src="public/screenshots/screenshot-privacy.png" alt="سياسة الخصوصية" width="800" />
+
+### شروط الخدمة (Terms of Service)
+
+<img src="public/screenshots/screenshot-terms.png" alt="شروط الخدمة" width="800" />
 
 </div>
 
@@ -50,6 +58,7 @@
 - 🎮 **لعب جماعي في الوقت الفعلي:** تنافس بين لاعبين باستخدام تقنية (Peer-to-Peer عبر PeerJS) بدون تأخير.
 - 🔔 **نظام الجرس التفاعلي (Buzzer):** أول من يضغط يربح حق الإجابة، مع واجهة تنبيهات فورية للمضيف.
 - 👁️ **وضع المشاهد (Spectate Mode):** إمكانية الانضمام للغرفة كمراقب لمتابعة اللعبة والأسئلة مباشرة دون مشاركة أو رؤية الإجابات.
+- 📋 **إدارة الأسئلة المحفوظة (Saved Questions Manager):** لوحة تحكم كاملة لعرض وإدارة الأسئلة التي عُرضت مسبقاً (نظام منع التكرار). تدعم البحث والتصفية وإعادة التفعيل والحذف الجماعي والتصدير/الاستيراد بصيغة JSON — كل البيانات محلية في localStorage فقط. متاحة على `/saved-questions`.
 - 📱 **تجربة غامرة (PWA & Fullscreen):** إمكانية تثبيت اللعبة على الشاشة الرئيسية (Add to Home Screen) للعب في وضع الشاشة الكاملة كلياً.
 - 📲 **ماسح QR مدمج بالكاميرا:** انضمام فوري عبر مسح كود المضيف مباشرة من واجهة اللعبة الجوالة.
 - 🎨 **تصميم عصري وجذاب:** واجهات مستخدم متقدمة بنمط (Glassmorphism) وتأثيرات حركية فاخرة.

@@ -8,6 +8,7 @@
   justify-content: center;
   color: #FFF;
   font-family: 'Cairo', sans-serif;
+  overflow-y: auto;
 }
 
 .rotate-content {
@@ -16,8 +17,12 @@
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  max-width: 400px;
-  padding: 20px;
+  max-width: 420px;
+  width: 100%;
+  padding: 20px 20px;
+  /* Allow content to scroll on very small screens */
+  max-height: 100%;
+  overflow-y: auto;
 }
 
 .rotate-icon {
@@ -201,4 +206,73 @@
   color: rgba(255, 255, 255, 0.9);
   border-color: rgba(255, 255, 255, 0.4);
   background: rgba(255, 255, 255, 0.05);
+}
+
+/* ── Mobile responsive: tighten spacing so content fits small screens ── */
+@media (max-height: 600px) {
+  .rotate-content {
+    gap: 7px;
+    padding: 14px 16px;
+  }
+  .fullscreen-icon {
+    font-size: 2.2rem;
+  }
+  .rotate-content h2 {
+    font-size: 1.25rem;
+  }
+  .rotate-content p {
+    font-size: 0.88rem;
+  }
+  .fullscreen-btn {
+    padding: 10px 24px;
+    font-size: 0.95rem;
+    margin-top: 6px;
+  }
+  .install-instructions {
+    padding: 10px 14px;
+  }
+  .install-title {
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+  }
+  .install-step-item {
+    font-size: 0.82rem;
+    gap: 8px;
+  }
+  .install-step-num {
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+    font-size: 0.72rem;
+  }
+  .install-divider {
+    margin: 8px 0;
+  }
+  .fullscreen-skip {
+    padding: 8px 18px;
+    font-size: 0.82rem;
+    margin-top: 6px;
+  }
+}
+
+@media (max-height: 450px) {
+  .rotate-overlay {
+    align-items: flex-start;
+  }
+  .rotate-content {
+    padding: 10px 14px;
+    gap: 6px;
+  }
+  .fullscreen-icon {
+    font-size: 1.8rem;
+  }
+  .rotate-content h2 {
+    font-size: 1.1rem;
+  }
+  .rotate-icon {
+    font-size: 2.5rem;
+  }
+  .rotate-arrow {
+    font-size: 2rem;
+  }
 }

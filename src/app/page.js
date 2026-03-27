@@ -209,11 +209,39 @@ function LandingContent() {
           )}
         </div>
 
+        {/* Saved Questions promo badge */}
+        <Link href="/saved-questions" style={{ textDecoration: 'none' }}>
+          <div style={{
+            background: 'rgba(107,63,160,0.25)',
+            border: '1px solid rgba(107,63,160,0.5)',
+            borderRadius: '14px',
+            padding: '10px 18px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            cursor: 'pointer',
+            transition: 'background 0.2s',
+            marginTop: '-4px',
+          }}>
+            <span style={{ fontSize: '1.3rem' }}>📋</span>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ color: '#d1b8f5', fontWeight: 800, fontSize: '0.9rem', lineHeight: 1.3 }}>
+                إدارة الأسئلة المحفوظة
+              </div>
+              <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem' }}>
+                عرض وإدارة أسئلة منع التكرار
+              </div>
+            </div>
+          </div>
+        </Link>
+
         {/* Footer */}
         <div className="landing-footer-container" style={{ textAlign: 'center', marginTop: '40px' }}>
           <p className="landing-footer" style={{ marginBottom: '10px' }}>🌙 لعبة المناسبات والجمعات مع الأهل والأصدقاء</p>
-          <div className="landing-footer-links" style={{ display: 'flex', justifyContent: 'center', gap: '15px', fontSize: '0.9rem', opacity: 0.7 }}>
+          <div className="landing-footer-links" style={{ display: 'flex', justifyContent: 'center', gap: '15px', fontSize: '0.9rem', opacity: 0.7, flexWrap: 'wrap' }}>
             <Link href="/install" style={{ color: '#fff', textDecoration: 'none' }}>التثبيت والتحميل</Link>
+            <span style={{ color: '#fff' }}>•</span>
+            <Link href="/saved-questions" style={{ color: '#fff', textDecoration: 'none' }}>الأسئلة المحفوظة</Link>
             <span style={{ color: '#fff' }}>•</span>
             <Link href="/privacy" style={{ color: '#fff', textDecoration: 'none' }}>سياسة الخصوصية</Link>
             <span style={{ color: '#fff' }}>•</span>
