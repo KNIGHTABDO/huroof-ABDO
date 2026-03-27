@@ -20,7 +20,8 @@ export function extractRoomCodeFromScan(raw) {
 
   try {
     const parsedUrl = new URL(text);
-    return normalizeRoomCode(parsedUrl.searchParams.get('join') || '');
+    const code = parsedUrl.searchParams.get('join') || parsedUrl.searchParams.get('room') || '';
+    return normalizeRoomCode(code);
   } catch {
     return normalizeRoomCode(text);
   }
